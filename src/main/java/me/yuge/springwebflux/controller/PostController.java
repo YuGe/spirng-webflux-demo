@@ -39,7 +39,6 @@ public class PostController {
         ReactiveSecurityContextHolder.getContext()
                 .switchIfEmpty(Mono.error(new BadCredentialsException("test")))
                 .map(SecurityContext::getAuthentication).doOnNext(System.out::println).block();
-        System.out.println(id);
         return this.postRepository.findById(id);
     }
 

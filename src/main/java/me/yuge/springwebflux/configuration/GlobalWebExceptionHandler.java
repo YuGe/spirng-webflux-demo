@@ -14,10 +14,8 @@ public class GlobalWebExceptionHandler implements WebExceptionHandler {
 
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-        System.out.println(getClass() + " -- " + ex.getClass());
         if (ex instanceof AuthenticationException) {
             HttpServerAuthenticationEntryPoint httpServerAuthenticationEntryPoint = new HttpServerAuthenticationEntryPoint();
-            System.out.println(ex.getMessage());
             return httpServerAuthenticationEntryPoint.commence(exchange, (AuthenticationException) ex);
         }
         return Mono.error(ex);

@@ -22,7 +22,6 @@ public class HttpServerAuthenticationEntryPoint implements ServerAuthenticationE
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-        System.out.println(getClass() + " ---- " + e.getClass() + ": " + e.getMessage());
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, this.basicHeaderValue);

@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import reactor.core.publisher.Mono;
@@ -23,11 +22,6 @@ public class SecurityConfiguration {
     @Autowired
     public SecurityConfiguration(ServerAuthenticationConverter serverAuthenticationConverter) {
         this.serverAuthenticationConverter = serverAuthenticationConverter;
-    }
-
-    @Bean
-    UserDetailsService userDetailsService() {
-        return null;
     }
 
     @Bean
