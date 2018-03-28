@@ -4,3 +4,7 @@ spring:
       uri: mongodb://localhost:27017/webflux_demo
   redis:
     password: v3ritas
+
+application:
+  session:
+    timeout: 7

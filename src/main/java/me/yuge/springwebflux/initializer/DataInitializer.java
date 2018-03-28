@@ -1,10 +1,10 @@
 package me.yuge.springwebflux.initializer;
 
 import lombok.extern.slf4j.Slf4j;
-import me.yuge.springwebflux.model.Post;
-import me.yuge.springwebflux.model.User;
-import me.yuge.springwebflux.repository.PostRepository;
-import me.yuge.springwebflux.repository.UserRepository;
+import me.yuge.springwebflux.demo.model.Post;
+import me.yuge.springwebflux.core.model.User;
+import me.yuge.springwebflux.demo.repository.PostRepository;
+import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
