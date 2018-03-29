@@ -1,10 +1,25 @@
 spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/webflux_demo
-  redis:
-    password: v3ritas
+  profiles:
+    active: dev
 
 application:
   session:
     timeout: 7
+
+---
+spring:
+  profiles: dev
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/dev
+  redis:
+    password: v3ritas
+
+---
+spring:
+  profiles: prod
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/prod
+  redis:
+    password: v3ritas
