@@ -11,7 +11,7 @@ spring:
   profiles: dev
   data:
     mongodb:
-      uri: mongodb://localhost:27017/dev
+      database: dev
   redis:
     password: v3ritas
 
@@ -20,6 +20,8 @@ spring:
   profiles: prod
   data:
     mongodb:
-      uri: mongodb://localhost:27017/prod
+      host: mongo
+      database: prod
   redis:
-    password: v3ritas
+    host: redis
+    password: xPwRXvRS7kdcFQMn9hXe8fNt8FUmP28CrvbpLpwP7H7uvJRMM9YLNvUk5T4x4TCc
