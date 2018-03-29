@@ -40,7 +40,9 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         ).switchIfEmpty(Mono.error(
                 new BadCredentialsException("Login or password not correct")
         )).flatMap(user -> sessionService.create(user).map(
-                session -> new AuthenticationToken(user.getId(), user.getPassword(), session, user.getAuthorities())
+                session -> new AuthenticationToken(
+                        user.getId(), user.getPassword(), session, user.getAuthorities()
+                )
         ));
     }
 

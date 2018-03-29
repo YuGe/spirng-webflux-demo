@@ -26,7 +26,7 @@ public class DataInitializer {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @EventListener(value = ContextRefreshedEvent.class)
+//    @EventListener(value = ContextRefreshedEvent.class)
     public void init() {
         initPosts();
         initUsers();
