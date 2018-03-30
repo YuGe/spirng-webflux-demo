@@ -8,15 +8,16 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.UUID;
 
 @Service
 public class SessionService {
 
     private static final String SESSION_PREFIX = "session:";
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    private Duration sessionTimeout;
+    private final Duration sessionTimeout;
     private final ReactiveRedisOperations<String, Session> sessionOperations;
 
     @Autowired
@@ -25,8 +26,8 @@ public class SessionService {
         this.sessionOperations = sessionOperations;
     }
 
-    public Mono<Session> get(String sessionId) {
-        String sessionKey = getSessionKey(sessionId);
+    public Mono<Session> get(String id) {
+        final String sessionKey = getSessionKey(id);
 
         return sessionOperations.opsForValue().get(sessionKey).flatMap(
                 session -> sessionOperations.expire(sessionKey, sessionTimeout).flatMap(
@@ -36,7 +37,8 @@ public class SessionService {
     }
 
     public Mono<Session> create(User user) {
-        Session session = new Session(newSessionId(), user.getId(), user.getUsername(), user.getRoles());
+        final String sessionId = newSessionId(user.getId());
+        Session session = new Session(sessionId, user.getId(), user.getUsername(), user.getRoles());
         String sessionKey = getSessionKey(session.getId());
 
         return sessionOperations.opsForValue().set(sessionKey, session).flatMap(
@@ -48,13 +50,22 @@ public class SessionService {
         );
     }
 
-    private String newSessionId() {
-        UUID uuid = UUID.randomUUID();
-        return Long.toHexString(uuid.getLeastSignificantBits()) +
-                Long.toHexString(uuid.getMostSignificantBits());
+    public Mono<Void> delete(String id) {
+        final String sessionKey = getSessionKey(id);
+
+        return sessionOperations.opsForValue().delete(sessionKey).flatMap(
+                (s) -> Mono.empty()
+        );
+    }
+
+    private String newSessionId(String prefix) {
+        // make sure the length of rnd hex string is 16
+        final long rnd = SECURE_RANDOM.nextLong() | (1L << 62);
+        return prefix + Long.toHexString(rnd);
     }
 
     private String getSessionKey(String sessionId) {
         return SESSION_PREFIX + sessionId;
     }
+
 }
