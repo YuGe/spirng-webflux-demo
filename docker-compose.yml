@@ -1,6 +1,7 @@
 version: '3'
 services:
-  web:
+  webapp:
+    build: ./
     image: spring-webflux-demo:latest
     command: java -jar app.jar --spring.profiles.active=prod
     ports:

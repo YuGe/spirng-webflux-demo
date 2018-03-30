@@ -1,5 +1,3 @@
 FROM openjdk:8-jre-slim
 
-ARG JAR_FILE
-
-ADD ${JAR_FILE} app.jar
+ADD ./build/libs/spring-webflux-demo-0.0.1.jar app.jar
