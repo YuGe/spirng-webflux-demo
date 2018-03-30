@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
+
 @Component
 public class BearerAuthentication implements Function<String, Mono<Authentication>> {
 
@@ -27,7 +28,7 @@ public class BearerAuthentication implements Function<String, Mono<Authenticatio
         String token = authorization.substring(7);
 
         return sessionService.get(token).switchIfEmpty(Mono.error(
-                new BadCredentialsException("Invalid token")
+                new BadCredentialsException("Invalid Bearer Authentication Token")
         )).map(session -> new AuthenticationToken(
                 session.getUserId(), token, session, User.getAuthorities(session.getRoles())
         ));

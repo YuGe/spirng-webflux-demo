@@ -38,10 +38,12 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         return userRepository.findByUsername(tokens[0]).filter(
                 user -> passwordEncoder.matches(tokens[1], user.getPassword())
         ).switchIfEmpty(Mono.error(
-                new BadCredentialsException("Login or password not correct")
+                new BadCredentialsException("Login or Password Not Correct")
         )).flatMap(user -> sessionService.create(user).map(
-                session -> new AuthenticationToken(user.getId(), user.getPassword(), session, user.getAuthorities())
-        ));
+                session -> new AuthenticationToken(
+                        user.getId(), user.getPassword(), session, user.getAuthorities())
+                )
+        );
     }
 
 
@@ -52,14 +54,14 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         try {
             decoded = Base64.getDecoder().decode(base64Token);
         } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Failed to decode basic authentication token");
+            throw new BadCredentialsException("Failed to decode Basic Authentication Token");
         }
 
         String token = new String(decoded);
 
         int delimiterIndex = token.indexOf(":");
         if (delimiterIndex == -1) {
-            throw new BadCredentialsException("Invalid basic authentication token");
+            throw new BadCredentialsException("Invalid Basic Authentication Token");
         }
         return new String[]{token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)};
     }

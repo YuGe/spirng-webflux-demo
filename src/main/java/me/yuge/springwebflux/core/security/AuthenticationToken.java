@@ -17,7 +17,7 @@ public class AuthenticationToken extends AbstractAuthenticationToken {
      * @param principal   The identity of the principal being authenticated.
      *                    This would be the username.
      * @param credentials The credentials that prove the principal is correct.
-     *                    This would be the password when basic auth.
+     *                    This would be the password (should be encrypted) when basic auth.
      * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal
      *                    represented by this authentication object.
      */

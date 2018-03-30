@@ -1,10 +1,12 @@
 package me.yuge.springwebflux.core.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -12,8 +14,9 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
-public class HttpServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
+public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
     private static final String DEFAULT_REALM = "Realm";
 
@@ -27,8 +30,15 @@ public class HttpServerAuthenticationEntryPoint implements ServerAuthenticationE
         response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, this.basicHeaderValue);
         response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, this.bearerHeaderValue);
 
-        DataBuffer db = new DefaultDataBufferFactory().wrap(e.getMessage().getBytes());
-        return exchange.getResponse().writeWith(Mono.just(db));
+        log.warn(e.getMessage());
+        log.warn(e.getClass().getName());
+        final String message = e instanceof AuthenticationCredentialsNotFoundException
+                ? "Authentication Credential Not Found."
+                : e.getMessage();
+
+        final DataBuffer buffer = response.bufferFactory().wrap(message.getBytes());
+        return response.writeWith(Mono.just(buffer))
+                .doOnError(error -> DataBufferUtils.release(buffer));
     }
 
     /**

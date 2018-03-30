@@ -46,7 +46,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "USER")
     public void testCreateTweet() {
         Tweet tweet = new Tweet("This is a Test Tweet");
 
@@ -63,7 +63,6 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testGetAllTweets() {
         webTestClient.get().uri("/tweets")
                 .accept(MediaType.APPLICATION_JSON_UTF8)
@@ -74,7 +73,6 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser
     public void testGetSingleTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block();
 
@@ -107,6 +105,7 @@ public class TweetControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testDeleteTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
 

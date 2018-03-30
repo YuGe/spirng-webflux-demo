@@ -2,7 +2,6 @@ package me.yuge.springwebflux.core.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -17,34 +16,42 @@ import reactor.core.publisher.Mono;
 @EnableReactiveMethodSecurity
 public class SecurityConfiguration {
 
-    private final ServerAuthenticationConverter serverAuthenticationConverter;
+    private final AuthenticationConverter authenticationConverter;
 
     @Autowired
-    public SecurityConfiguration(ServerAuthenticationConverter serverAuthenticationConverter) {
-        this.serverAuthenticationConverter = serverAuthenticationConverter;
+    public SecurityConfiguration(AuthenticationConverter authenticationConverter) {
+        this.authenticationConverter = authenticationConverter;
     }
 
+//    @Bean
+//    public Boolean oauth2StatelessSecurityContext() {
+//        return Boolean.FALSE;
+//    }
+
     @Bean
-    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
+    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+
         // Disabled default security
-        httpSecurity.httpBasic().disable();
-        httpSecurity.formLogin().disable();
-        httpSecurity.logout().disable();
-        httpSecurity.csrf().disable();
+        http.httpBasic().disable();
+        http.formLogin().disable();
+        http.logout().disable();
+        http.csrf().disable();
+        http.exceptionHandling();
+
+        // Set custom exception handler
+        http.exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint());
 
         // Add custom authentication converter
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(new AuthenticationManager());
-        authenticationFilter.setAuthenticationConverter(serverAuthenticationConverter);
-        httpSecurity.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+        authenticationFilter.setAuthenticationConverter(authenticationConverter);
+        http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.CSRF);
 
-        // Disabled authentication for `POST /user` routes.
-        httpSecurity.authorizeExchange().pathMatchers(HttpMethod.POST, "/user").permitAll();
-        httpSecurity.authorizeExchange().anyExchange().authenticated();
+        http.authorizeExchange().anyExchange().permitAll();
 
-        return httpSecurity.build();
+        return http.build();
     }
 
-    public class AuthenticationManager implements ReactiveAuthenticationManager {
+    private class AuthenticationManager implements ReactiveAuthenticationManager {
         @Override
         public Mono<Authentication> authenticate(Authentication authentication) {
             return Mono.just(authentication);

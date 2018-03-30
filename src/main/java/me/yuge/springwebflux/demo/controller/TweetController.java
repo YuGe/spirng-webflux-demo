@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.time.ZonedDateTime;
 
 @RestController
 public class TweetController {
@@ -24,13 +25,14 @@ public class TweetController {
     }
 
     @GetMapping("/tweets")
-    @PreAuthorize("hasRole('ADMIN')")
     public Flux<Tweet> getAllTweets() {
         return tweetRepository.findAll();
     }
 
     @PostMapping("/tweets")
+    @PreAuthorize("hasRole('USER')")
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
+        tweet.setCreatedTime(ZonedDateTime.now());
         return tweetRepository.save(tweet);
     }
 
@@ -42,7 +44,7 @@ public class TweetController {
     }
 
     @PutMapping("/tweets/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
                                                    @Valid @RequestBody Tweet tweet) {
         return tweetRepository.findById(tweetId)
@@ -55,6 +57,7 @@ public class TweetController {
     }
 
     @DeleteMapping("/tweets/{id}")
+    @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
 
         return tweetRepository.findById(tweetId)

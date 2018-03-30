@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -12,13 +13,13 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @Component
-public class ServerAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+public class AuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 
     private final BasicAuthentication basicAuthentication;
     private final BearerAuthentication bearerAuthentication;
 
     @Autowired
-    public ServerAuthenticationConverter(BasicAuthentication basicAuthentication, BearerAuthentication bearerAuthentication) {
+    public AuthenticationConverter(BasicAuthentication basicAuthentication, BearerAuthentication bearerAuthentication) {
         this.basicAuthentication = basicAuthentication;
         this.bearerAuthentication = bearerAuthentication;
     }
@@ -28,9 +29,14 @@ public class ServerAuthenticationConverter implements Function<ServerWebExchange
         ServerHttpRequest request = serverWebExchange.getRequest();
         String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
+        // SecurityContext already exist. Most for test with mock user.
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            return Mono.just(SecurityContextHolder.getContext().getAuthentication());
+        }
+
         //noinspection ConstantConditions
         if (authorization == null) {
-            throw new BadCredentialsException("No authorization header");
+            return Mono.empty();
         }
 
         if (authorization.startsWith(BearerAuthentication.BEARER)) {
@@ -41,7 +47,7 @@ public class ServerAuthenticationConverter implements Function<ServerWebExchange
             return basicAuthentication.apply(authorization);
         }
 
-        return Mono.error(new BadCredentialsException("Invalid authorization header"));
+        return Mono.error(new BadCredentialsException("Invalid Authorization Header"));
     }
 
 }

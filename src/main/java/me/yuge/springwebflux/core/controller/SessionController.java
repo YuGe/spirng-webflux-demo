@@ -1,6 +1,7 @@
 package me.yuge.springwebflux.core.controller;
 
 import me.yuge.springwebflux.core.model.Session;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class SessionController {
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     public Mono<Session> get() {
         return ReactiveSecurityContextHolder.getContext().map(
                 securityContext -> securityContext.getAuthentication().getDetails()

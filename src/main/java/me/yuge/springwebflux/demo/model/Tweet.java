@@ -1,5 +1,7 @@
 package me.yuge.springwebflux.demo.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -7,12 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "tweets")
 public class Tweet {
 
@@ -23,11 +26,11 @@ public class Tweet {
     @Size(max = 140)
     private String text;
 
-    @NotNull
-    @Field("created_at")
-    private ZonedDateTime createdAt = ZonedDateTime.now();
+    @Field("created_time")
+    private ZonedDateTime createdTime;
 
     public Tweet(String text) {
         this.text = text;
+        this.createdTime = ZonedDateTime.now();
     }
 }
