@@ -1,6 +1,7 @@
 package me.yuge.springwebflux.core.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Slf4j
+@Primary
 @Component
 public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
@@ -30,8 +32,6 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
         response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, this.basicHeaderValue);
         response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, this.bearerHeaderValue);
 
-        log.warn(e.getMessage());
-        log.warn(e.getClass().getName());
         final String message = e instanceof AuthenticationCredentialsNotFoundException
                 ? "Authentication Credential Not Found."
                 : e.getMessage();

@@ -8,6 +8,7 @@ import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -18,16 +19,19 @@ public class DataInitializer {
     private final TweetRepository tweetRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory;
 
     @Autowired
-    public DataInitializer(TweetRepository tweetRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public DataInitializer(TweetRepository tweetRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory) {
         this.tweetRepository = tweetRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.reactiveMongoDatabaseFactory = reactiveMongoDatabaseFactory;
     }
 
-//    @EventListener(value = ContextRefreshedEvent.class)
+    @EventListener(value = ContextRefreshedEvent.class)
     public void init() {
+        reactiveMongoDatabaseFactory.getMongoDatabase().drop();
         initPosts();
         initUsers();
     }
@@ -41,8 +45,10 @@ public class DataInitializer {
                             : new String[]{"USER", "ADMIN"};
                     User user = User.builder()
                             .username(username)
+                            .email(username + "@bar.com")
                             .password(passwordEncoder.encode("FooBar123"))
                             .roles(roles)
+                            .login(new String[]{username, username + "@bar.com"})
                             .build();
                     return this.userRepository.save(user);
                 })

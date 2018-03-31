@@ -1,6 +1,7 @@
 package me.yuge.springwebflux.core.model;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 
 @Data
 @Builder
@@ -9,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Session {
 
+    @Id
     private String id;
     private String userId;
     private String username;

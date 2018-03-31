@@ -1,14 +1,15 @@
 package me.yuge.springwebflux.core.controller;
 
+import me.yuge.springwebflux.core.exception.NotFoundException;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequestMapping("users")
 @RestController
 public class UserController {
 
@@ -19,12 +20,25 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("users")
+    @GetMapping
     public Flux<User> all() {
         return userRepository.findAll();
     }
 
-    @GetMapping("users/{id}")
+    @GetMapping(params = "username")
+    public Mono<User> getByUsername(@RequestParam("username") String username) {
+        return userRepository.findByUsername(username)
+                .switchIfEmpty(
+                Mono.error(new NotFoundException()));
+    }
+
+    @GetMapping(params = "login")
+    public Mono<User> getByParam(@RequestParam("login") String login) {
+        System.out.println("test");
+        return userRepository.findByLogin(login);
+    }
+
+    @GetMapping("{id}")
     public Mono<User> get(@PathVariable() String id) {
         return userRepository.findById(id);
     }

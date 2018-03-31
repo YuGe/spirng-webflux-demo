@@ -1,5 +1,6 @@
 package me.yuge.springwebflux.core.security;
 
+import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import me.yuge.springwebflux.core.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -31,33 +33,30 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
 
     @Override
     public Mono<Authentication> apply(String authorization) {
-        String[] tokens;
-        tokens = extractAndDecodeHeader(authorization);
-        assert tokens.length == 2;
+        String[] tokens = extractAndDecodeToken(authorization);
+        Assert.isTrue(tokens.length == 2, "Tokens should contain login and password");
 
-        return userRepository.findByUsername(tokens[0]).filter(
+        return userRepository.findByLogin(tokens[0]).filter(
                 user -> passwordEncoder.matches(tokens[1], user.getPassword())
         ).switchIfEmpty(Mono.error(
-                new BadCredentialsException("Login or Password Not Correct")
+                new BadCredentialsException("Login or Password not correct")
         )).flatMap(user -> sessionService.create(user).map(
                 session -> new AuthenticationToken(
-                        user.getId(), user.getPassword(), session, user.getAuthorities())
+                        user.getId(), user.getPassword(), session, User.getAuthorities(user.getRoles()))
                 )
         );
     }
 
-
-    private String[] extractAndDecodeHeader(String header) {
+    private String[] extractAndDecodeToken(String header) {
+        String token;
 
         byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
-        byte[] decoded;
         try {
-            decoded = Base64.getDecoder().decode(base64Token);
+            token = new String(Base64.getDecoder().decode(base64Token));
         } catch (IllegalArgumentException e) {
             throw new BadCredentialsException("Failed to decode Basic Authentication Token");
         }
-
-        String token = new String(decoded);
+        Assert.notNull(token, "Token shouldn't be null after Base64 decode");
 
         int delimiterIndex = token.indexOf(":");
         if (delimiterIndex == -1) {

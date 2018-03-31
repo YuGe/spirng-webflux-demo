@@ -17,16 +17,13 @@ import reactor.core.publisher.Mono;
 public class SecurityConfiguration {
 
     private final AuthenticationConverter authenticationConverter;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
-    public SecurityConfiguration(AuthenticationConverter authenticationConverter) {
+    public SecurityConfiguration(AuthenticationConverter authenticationConverter, AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationConverter = authenticationConverter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
-
-//    @Bean
-//    public Boolean oauth2StatelessSecurityContext() {
-//        return Boolean.FALSE;
-//    }
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -36,19 +33,22 @@ public class SecurityConfiguration {
         http.formLogin().disable();
         http.logout().disable();
         http.csrf().disable();
-        http.exceptionHandling();
 
         // Set custom exception handler
-        http.exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint());
+        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 
         // Add custom authentication converter
-        AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(new AuthenticationManager());
+        AuthenticationWebFilter authenticationFilter = getAuthenticationWebFilter();
         authenticationFilter.setAuthenticationConverter(authenticationConverter);
         http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.CSRF);
 
         http.authorizeExchange().anyExchange().permitAll();
 
         return http.build();
+    }
+
+    private AuthenticationWebFilter getAuthenticationWebFilter() {
+        return  new AuthenticationWebFilter(new AuthenticationManager());
     }
 
     private class AuthenticationManager implements ReactiveAuthenticationManager {
