@@ -12,8 +12,6 @@ spring:
   data:
     mongodb:
       database: dev
-  redis:
-    password: v3ritas
 
 ---
 spring:
