@@ -5,13 +5,14 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+
 @Getter
 @Setter
 @Configuration
 @ConfigurationProperties(prefix="application")
 public class ApplicationProperties {
 
-    private final Session session = new Session();
+    private Session session = new Session();
 
     @Getter
     @Setter

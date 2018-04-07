@@ -6,10 +6,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
+
 
 @Slf4j
 @Component

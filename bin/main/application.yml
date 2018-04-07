@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: dev
+
+application:
+  session:
+    timeout: 7
+
+---
+spring:
+  profiles: dev
+  data:
+    mongodb:
+      database: dev
+
+---
+spring:
+  profiles: prod
+  data:
+    mongodb:
+      host: mongo
+      database: prod
+  redis:
+    host: redis
+    password: xPwRXvRS7kdcFQMn9hXe8fNt8FUmP28CrvbpLpwP7H7uvJRMM9YLNvUk5T4x4TCc

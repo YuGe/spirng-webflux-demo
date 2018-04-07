@@ -1,56 +1,44 @@
 package me.yuge.springwebflux.core.controller;
 
-import me.yuge.springwebflux.core.model.Session;
-import me.yuge.springwebflux.core.service.SessionService;
+import me.yuge.springwebflux.core.exception.NotFoundException;
+import me.yuge.springwebflux.core.model.User;
+import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
 
+@RequestMapping("users")
 @RestController
-@RequestMapping("session")
 public class SessionController {
 
-    private final SessionService sessionService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public SessionController(SessionService sessionService) {
-        this.sessionService = sessionService;
+    public SessionController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    @PostMapping
-    public Mono<Session> create() {
-        return ReactiveSecurityContextHolder.getContext().map(
-                securityContext -> securityContext.getAuthentication().getDetails()
-        ).cast(Session.class);
+    @GetMapping
+    public Flux<User> all() {
+        return userRepository.findAll();
+    }
+
+    @GetMapping(params = "username")
+    public Mono<User> getByUsername(@RequestParam("username") String username) {
+        return userRepository.findByUsername(username).switchIfEmpty(Mono.error(new NotFoundException()));
+    }
+
+    @GetMapping(params = "login")
+    public Mono<User> getByParam(@RequestParam("login") String login) {
+        System.out.println("test");
+        return userRepository.findByLogin(login);
     }
 
     @GetMapping("{id}")
-    public Mono<Session> get(@PathVariable(value = "id") String id) {
-        return ReactiveSecurityContextHolder.getContext().map(securityContext ->
-                securityContext.getAuthentication().getDetails()
-        ).cast(Session.class).flatMap(authSession ->
-                sessionService.get(id).filter(targetSession ->
-                        Objects.equals(targetSession.getUserId(), authSession.getUserId())
-                ).switchIfEmpty(Mono.error(
-                        new AccessDeniedException("Not allowed to access this session")
-                ))
-        );
+    public Mono<User> get(@PathVariable() String id) {
+        return userRepository.findById(id);
     }
 
-    @DeleteMapping("{id}")
-    public Mono<Void> delete(@PathVariable(value = "id") String id) {
-        return ReactiveSecurityContextHolder.getContext().map(securityContext ->
-                securityContext.getAuthentication().getDetails()
-        ).cast(Session.class).flatMap(authSession ->
-                sessionService.get(id).filter(targetSession ->
-                        Objects.equals(targetSession.getUserId(), authSession.getUserId())
-                ).switchIfEmpty(Mono.error(
-                        new AccessDeniedException("Not allowed to delete this session")
-                )).flatMap(session -> sessionService.delete(session.getId()))
-        );
-    }
 }

@@ -3,9 +3,9 @@ package me.yuge.springwebflux.core.model;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+
 @Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {

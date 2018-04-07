@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+
 @Configuration
 public class JacksonConfiguration {
 
@@ -30,6 +31,8 @@ public class JacksonConfiguration {
 
     public class ZonedDateTimeSerializer extends StdSerializer<ZonedDateTime> {
 
+        private static final long serialVersionUID = 5990693242833921457L;
+
         ZonedDateTimeSerializer() {
             super(ZonedDateTime.class);
         }
@@ -41,6 +44,8 @@ public class JacksonConfiguration {
     }
 
     public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
+
+        private static final long serialVersionUID = 821949036695831435L;
 
         ZonedDateTimeDeserializer() {
             super(ZonedDateTime.class);

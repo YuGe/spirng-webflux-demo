@@ -23,6 +23,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TweetControllerTests {
@@ -118,4 +119,5 @@ public class TweetControllerTests {
     private Consumer<Map<String, Object>> adminCredentials() {
         return basicAuthenticationCredentials("admin", "FooBar123");
     }
+
 }

@@ -12,6 +12,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import reactor.core.publisher.Mono;
 
+
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class SecurityConfiguration {

@@ -4,10 +4,10 @@ import me.yuge.springwebflux.core.exception.NotFoundException;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 
 @RequestMapping("users")
 @RestController
@@ -27,9 +27,7 @@ public class UserController {
 
     @GetMapping(params = "username")
     public Mono<User> getByUsername(@RequestParam("username") String username) {
-        return userRepository.findByUsername(username)
-                .switchIfEmpty(
-                Mono.error(new NotFoundException()));
+        return userRepository.findByUsername(username).switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     @GetMapping(params = "login")
