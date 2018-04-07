@@ -56,7 +56,7 @@ public class ReactorTests {
 
     }
 
-    public class SampleSubscriber<T> extends BaseSubscriber<T> {
+    class SampleSubscriber<T> extends BaseSubscriber<T> {
 
         public void hookOnSubscribe(Subscription subscription) {
             System.out.println("Subscribed");

@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 
-public class AuthenticationToken extends AbstractAuthenticationToken {
+class AuthenticationToken extends AbstractAuthenticationToken {
 
     private static final long serialVersionUID = -1126325598266222359L;
 

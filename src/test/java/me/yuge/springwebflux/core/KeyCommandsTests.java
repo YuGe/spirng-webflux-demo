@@ -35,7 +35,7 @@ public class KeyCommandsTests {
     ReactiveRedisConnectionFactory connectionFactory;
 
     private ReactiveRedisConnection connection;
-    private RedisSerializer<String> serializer = new StringRedisSerializer();
+    private final RedisSerializer<String> serializer = new StringRedisSerializer();
 
     @Before
     public void setUp() {
