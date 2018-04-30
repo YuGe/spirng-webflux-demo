@@ -45,6 +45,7 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
      *
      * @param realm the realm. Default is "Realm"
      */
+    @SuppressWarnings("unused")
     public void setRealm(String realm) {
         this.basicHeaderValue = createBasicHeaderValue(realm);
         this.bearerHeaderValue = createBearerHeaderValue(realm);
@@ -59,4 +60,5 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
         Assert.notNull(realm, "realm cannot be null");
         return String.format("Bearer realm=\"%s\"", realm);
     }
+
 }
