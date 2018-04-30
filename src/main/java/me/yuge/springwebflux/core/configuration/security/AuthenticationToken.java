@@ -1,4 +1,4 @@
-package me.yuge.springwebflux.core.security;
+package me.yuge.springwebflux.core.configuration.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

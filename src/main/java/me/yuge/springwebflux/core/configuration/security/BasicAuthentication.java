@@ -1,4 +1,4 @@
-package me.yuge.springwebflux.core.security;
+package me.yuge.springwebflux.core.configuration.security;
 
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;

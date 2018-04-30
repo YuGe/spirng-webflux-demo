@@ -1,4 +1,4 @@
-package me.yuge.springwebflux.core.security;
+package me.yuge.springwebflux.core.configuration.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;

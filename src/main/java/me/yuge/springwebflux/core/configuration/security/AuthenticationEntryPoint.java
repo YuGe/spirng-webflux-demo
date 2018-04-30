@@ -1,4 +1,4 @@
-package me.yuge.springwebflux.core.security;
+package me.yuge.springwebflux.core.configuration.security;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.buffer.DataBuffer;
