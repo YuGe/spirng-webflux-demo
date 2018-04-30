@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 
 
@@ -33,7 +34,7 @@ public class TweetController {
     @PostMapping("/tweets")
     @PreAuthorize("hasRole('USER')")
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
-        tweet.setCreatedTime(ZonedDateTime.now());
+        tweet.setCreatedTime(Instant.now());
         return tweetRepository.save(tweet);
     }
 

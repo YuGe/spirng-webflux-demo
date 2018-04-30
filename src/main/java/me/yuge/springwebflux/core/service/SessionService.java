@@ -39,13 +39,19 @@ public class SessionService {
         String sessionKey = getSessionKey(session.getId());
 
         return sessionOperations.opsForValue().set(sessionKey, session).flatMap(
-                setSucceeded -> !setSucceeded
-                        ? Mono.error(new RedisCommandExecutionException("set error"))
-                        : sessionOperations.expire(sessionKey, sessionTimeout).flatMap(
-                        expireSucceeded -> !expireSucceeded
-                                ? Mono.error(new RedisCommandExecutionException("expire error"))
-                                : Mono.just(session)
-                )
+                setSucceeded -> setSucceeded
+                        ? Mono.just(session)
+                        : Mono.error(new RedisCommandExecutionException("set error"))
+        );
+    }
+
+    public Mono<Session> expire(Session session) {
+        String sessionKey = getSessionKey(session.getId());
+
+        return sessionOperations.expire(sessionKey, sessionTimeout).flatMap(
+                expireSucceeded -> expireSucceeded
+                        ? Mono.just(session)
+                        : Mono.error(new RedisCommandExecutionException("expire error"))
         );
     }
 

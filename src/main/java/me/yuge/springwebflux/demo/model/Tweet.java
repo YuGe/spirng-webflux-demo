@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 
 @Data
@@ -26,12 +26,12 @@ public class Tweet {
     @Size(max = 140)
     private String text;
 
-    private ZonedDateTime createdTime;
-    private ZonedDateTime modifiedTime;
+    private Instant createdTime;
+    private Instant modifiedTime;
 
     public Tweet(String text) {
         this.text = text;
-        this.createdTime = ZonedDateTime.now();
-        this.modifiedTime = ZonedDateTime.now();
+        this.createdTime = Instant.now();
+        this.modifiedTime = Instant.now();
     }
 }

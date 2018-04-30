@@ -43,14 +43,18 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         ).switchIfEmpty(
                 Mono.error(new BadCredentialsException("Login or Password not correct"))
         ).flatMap(user -> {
-                    final Session session = Session.builder()
-                            .id(Session.nextSessionId(user.getId())).userId(user.getId())
-                            .username(user.getUsername()).roles(user.getRoles()).build();
+                    final Session session = Session.builder().userId(user.getId())
+                            .username(user.getUsername()).roles(user.getRoles())
+                            .id(Session.nextSessionId(user.getId())).build();
 
-                    return sessionService.save(session).map(savedSession ->
-                            new AuthenticationToken(
-                                    user.getId(), user.getPassword(), session, User.getAuthorities(user.getRoles())
-                            ));
+                    return sessionService.save(session).flatMap(
+                            savedSession -> sessionService.expire(savedSession).map(
+                                    expiredSession -> new AuthenticationToken(
+                                            user.getId(), user.getPassword(), session,
+                                            User.getAuthorities(user.getRoles())
+                                    )
+                            )
+                    );
                 }
         );
     }

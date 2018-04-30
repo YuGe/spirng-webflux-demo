@@ -29,8 +29,11 @@ public class BearerAuthentication implements Function<String, Mono<Authenticatio
 
         return sessionService.get(token).switchIfEmpty(Mono.error(
                 new BadCredentialsException("Invalid Bearer Authentication Token")
-        )).map(session -> new AuthenticationToken(
-                session.getUserId(), token, session, User.getAuthorities(session.getRoles())
-        ));
+        )).flatMap(session -> sessionService.expire(session)
+                .map(expiredSession -> new AuthenticationToken(
+                                expiredSession.getUserId(), token, expiredSession,
+                                User.getAuthorities(expiredSession.getRoles())
+                        )
+                ));
     }
 }

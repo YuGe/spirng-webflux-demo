@@ -31,7 +31,8 @@ public class RedisJacksonJsonTests {
 
     @Test
     public void shouldWriteAndReadPerson() throws JsonProcessingException {
-        Session session = new Session("id", "user_id", "username", new String[]{"USER", "ADMIN"});
+        Session session = Session.builder().id("id").userId("user_id")
+                .username("username").roles(new String[]{"USER", "ADMIN"}).build();
 
         StepVerifier.create(typedOperations.opsForValue().set("session", session))
                 .expectNext(true)
@@ -54,7 +55,8 @@ public class RedisJacksonJsonTests {
     @Test
     public void shouldWriteAndReadSessionObject() throws JsonProcessingException {
 
-        Session session = new Session("id", "user_id", "username", new String[]{"USER", "ADMIN"});
+        Session session = Session.builder().id("id").userId("user_id")
+                .username("username").roles(new String[]{"USER", "ADMIN"}).build();
 
         StepVerifier.create(genericOperations.opsForValue().set("session", session))
                 .expectNext(true)
