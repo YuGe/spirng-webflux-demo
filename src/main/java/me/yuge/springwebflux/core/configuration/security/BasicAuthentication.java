@@ -39,9 +39,9 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
 
         return userRepository.findByLogin(tokens[0]).filter(
                 user -> passwordEncoder.matches(tokens[1], user.getPassword())
-        ).switchIfEmpty(Mono.error(
-                new BadCredentialsException("Login or Password not correct")
-        )).flatMap(user -> sessionService.create(user).map(
+        ).switchIfEmpty(
+                Mono.error(new BadCredentialsException("Login or Password not correct"))
+        ).flatMap(user -> sessionService.create(user).map(
                 session -> new AuthenticationToken(
                         user.getId(), user.getPassword(), session, User.getAuthorities(user.getRoles()))
                 )
@@ -49,20 +49,20 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
     }
 
     private String[] extractAndDecodeToken(String header) {
-        String token;
-
         byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
         try {
-            token = new String(Base64.getDecoder().decode(base64Token));
+            String token = new String(Base64.getDecoder().decode(base64Token));
+            Assert.notNull(token, "Token shouldn't be null after Base64 decode");
+
+            int delimiterIndex = token.indexOf(":");
+            if (delimiterIndex == -1) {
+                throw new BadCredentialsException("Invalid Basic Authentication Token");
+            }
+            return new String[]{
+                    token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)
+            };
         } catch (IllegalArgumentException e) {
             throw new BadCredentialsException("Failed to decode Basic Authentication Token");
         }
-        Assert.notNull(token, "Token shouldn't be null after Base64 decode");
-
-        int delimiterIndex = token.indexOf(":");
-        if (delimiterIndex == -1) {
-            throw new BadCredentialsException("Invalid Basic Authentication Token");
-        }
-        return new String[]{token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)};
     }
 }

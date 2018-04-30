@@ -32,15 +32,12 @@ public class User {
     @Indexed(unique = true, sparse = true)
     private String phone;
     private String password;
-
-    @Builder.Default()
-    private boolean active = true;
-
+    @Indexed(unique = true, sparse = true)
+    private String[] login; // contains username, email, phone
     @Builder.Default()
     private String[] roles = new String[]{};
-
-    @Indexed(unique = true, sparse = true)
-    private String[] login;
+    @Builder.Default()
+    private boolean active = true;
 
     public static Collection<? extends GrantedAuthority> getAuthorities(String[] roles) {
         List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
@@ -53,5 +50,4 @@ public class User {
         }
         return authorities;
     }
-
 }

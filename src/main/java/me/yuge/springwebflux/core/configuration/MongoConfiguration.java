@@ -42,20 +42,16 @@ public class MongoConfiguration {
     }
 
     class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {
-
         @Override
         public ZonedDateTime convert(Date source) {
             return ZonedDateTime.ofInstant(source.toInstant(), ZoneId.systemDefault());
         }
-
     }
 
     class ZonedDateTimeToDateConverter implements Converter<ZonedDateTime, Date> {
-
         @Override
         public Date convert(ZonedDateTime source) {
             return Date.from(source.toInstant());
         }
-
     }
 }

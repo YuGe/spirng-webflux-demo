@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
 
 
 @Slf4j
-@Component
 @Order(-2)
+@Component
 public class GlobalWebExceptionHandler implements WebExceptionHandler {
 
     private final ServerAuthenticationEntryPoint authenticationEntryPoint;
@@ -28,6 +28,7 @@ public class GlobalWebExceptionHandler implements WebExceptionHandler {
         if (ex instanceof AuthenticationException) {
             return authenticationEntryPoint.commence(exchange, (AuthenticationException) ex);
         }
+
         // TODO: 2018/03/31  Override DefaultErrorWebExceptionHandler to customize response
         log.warn(ex.getClass().toString());
         log.warn(ex.getMessage());

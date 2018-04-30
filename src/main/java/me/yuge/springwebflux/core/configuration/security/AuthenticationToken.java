@@ -57,4 +57,5 @@ class AuthenticationToken extends AbstractAuthenticationToken {
         super.eraseCredentials();
         credentials = null;
     }
+
 }

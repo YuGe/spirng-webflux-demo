@@ -30,7 +30,6 @@ public class JacksonConfiguration {
     }
 
     class ZonedDateTimeSerializer extends StdSerializer<ZonedDateTime> {
-
         private static final long serialVersionUID = 5990693242833921457L;
 
         ZonedDateTimeSerializer() {
@@ -44,7 +43,6 @@ public class JacksonConfiguration {
     }
 
     public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
-
         private static final long serialVersionUID = 821949036695831435L;
 
         ZonedDateTimeDeserializer() {
