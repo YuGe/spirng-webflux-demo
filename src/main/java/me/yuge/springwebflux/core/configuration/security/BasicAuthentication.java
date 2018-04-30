@@ -1,5 +1,6 @@
 package me.yuge.springwebflux.core.configuration.security;
 
+import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import me.yuge.springwebflux.core.service.SessionService;
@@ -41,10 +42,16 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
                 user -> passwordEncoder.matches(tokens[1], user.getPassword())
         ).switchIfEmpty(
                 Mono.error(new BadCredentialsException("Login or Password not correct"))
-        ).flatMap(user -> sessionService.create(user).map(
-                session -> new AuthenticationToken(
-                        user.getId(), user.getPassword(), session, User.getAuthorities(user.getRoles()))
-                )
+        ).flatMap(user -> {
+                    final Session session = Session.builder()
+                            .id(Session.nextSessionId(user.getId())).userId(user.getId())
+                            .username(user.getUsername()).roles(user.getRoles()).build();
+
+                    return sessionService.save(session).map(savedSession ->
+                            new AuthenticationToken(
+                                    user.getId(), user.getPassword(), session, User.getAuthorities(user.getRoles())
+                            ));
+                }
         );
     }
 

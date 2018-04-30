@@ -1,28 +1,26 @@
 package me.yuge.springwebflux.core.service;
 
+import io.lettuce.core.RedisCommandExecutionException;
 import me.yuge.springwebflux.core.ApplicationProperties;
 import me.yuge.springwebflux.core.model.Session;
-import me.yuge.springwebflux.core.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.security.SecureRandom;
 import java.time.Duration;
 
 
 @Service
 public class SessionService {
 
-    private static final String SESSION_PREFIX = "session:";
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
+    private final String sessionPrefix;
     private final Duration sessionTimeout;
     private final ReactiveRedisOperations<String, Session> sessionOperations;
 
     @Autowired
     public SessionService(ApplicationProperties applicationProperties, ReactiveRedisOperations<String, Session> sessionOperations) {
+        this.sessionPrefix = applicationProperties.getSession().getPrefix();
         this.sessionTimeout = Duration.ofDays(applicationProperties.getSession().getTimeout());
         this.sessionOperations = sessionOperations;
     }
@@ -37,16 +35,16 @@ public class SessionService {
         );
     }
 
-    public Mono<Session> create(User user) {
-        final String sessionId = newSessionId(user.getId());
-        Session session = new Session(sessionId, user.getId(), user.getUsername(), user.getRoles());
+    public Mono<Session> save(Session session) {
         String sessionKey = getSessionKey(session.getId());
 
         return sessionOperations.opsForValue().set(sessionKey, session).flatMap(
                 setSucceeded -> !setSucceeded
-                        ? Mono.empty()
+                        ? Mono.error(new RedisCommandExecutionException("set error"))
                         : sessionOperations.expire(sessionKey, sessionTimeout).flatMap(
-                        expireSucceeded -> expireSucceeded ? Mono.just(session) : Mono.empty()
+                        expireSucceeded -> !expireSucceeded
+                                ? Mono.error(new RedisCommandExecutionException("expire error"))
+                                : Mono.just(session)
                 )
         );
     }
@@ -59,14 +57,7 @@ public class SessionService {
         );
     }
 
-    private String newSessionId(String prefix) {
-        // make sure the length of rnd hex string is 16
-        final long rnd = SECURE_RANDOM.nextLong() | (1L << 62);
-        return prefix + Long.toHexString(rnd);
-    }
-
     private String getSessionKey(String sessionId) {
-        return SESSION_PREFIX + sessionId;
+        return sessionPrefix + sessionId;
     }
-
 }

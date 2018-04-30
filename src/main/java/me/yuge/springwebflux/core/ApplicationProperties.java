@@ -16,7 +16,9 @@ public class ApplicationProperties {
 
     @Getter
     @Setter
+    @SuppressWarnings("WeakerAccess")
     public static class Session {
         private int timeout = 7;
+        private String prefix = "session:";
     }
 }
