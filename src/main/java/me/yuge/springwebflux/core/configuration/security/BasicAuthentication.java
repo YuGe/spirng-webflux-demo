@@ -1,9 +1,10 @@
 package me.yuge.springwebflux.core.configuration.security;
 
+import me.yuge.springwebflux.core.ApplicationProperties;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.model.User;
-import me.yuge.springwebflux.core.repository.UserRepository;
 import me.yuge.springwebflux.core.service.SessionService;
+import me.yuge.springwebflux.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.function.Function;
 
@@ -23,14 +25,17 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
     static final String BASIC = "Basic ";
 
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final SessionService sessionService;
+    private final Duration maxIdleTime;
 
     @Autowired
-    public BasicAuthentication(PasswordEncoder passwordEncoder, UserRepository userRepository, SessionService sessionService) {
-        this.userRepository = userRepository;
+    public BasicAuthentication(UserService userService, SessionService sessionService,
+                               PasswordEncoder passwordEncoder, ApplicationProperties applicationProperties) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
+        this.maxIdleTime = Duration.ofDays(applicationProperties.getSession().getMaxIdleDays());
     }
 
     @Override
@@ -38,14 +43,14 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         String[] tokens = extractAndDecodeToken(authorization);
         Assert.isTrue(tokens.length == 2, "Tokens should contain login and password");
 
-        return userRepository.findByLogin(tokens[0]).filter(
+        return userService.findByLogin(tokens[0]).filter(
                 user -> passwordEncoder.matches(tokens[1], user.getPassword())
         ).switchIfEmpty(
                 Mono.error(new BadCredentialsException("Login or Password not correct"))
         ).flatMap(user -> {
-                    final Session session = Session.builder().userId(user.getId())
-                            .username(user.getUsername()).roles(user.getRoles())
-                            .id(Session.nextSessionId(user.getId())).build();
+                    Session session = Session.builder().id(Session.nextSessionId(user.getId()))
+                            .userId(user.getId()).username(user.getUsername()).roles(user.getRoles())
+                            .login(tokens[0]).maxIdleTime(maxIdleTime).build();
 
                     return sessionService.save(session).flatMap(
                             savedSession -> sessionService.expire(savedSession).map(

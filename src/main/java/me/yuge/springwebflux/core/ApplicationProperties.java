@@ -18,7 +18,7 @@ public class ApplicationProperties {
     @Setter
     @SuppressWarnings("WeakerAccess")
     public static class Session {
-        private int timeout = 7;
+        private int maxIdleDays = 7;
         private String prefix = "session:";
     }
 }

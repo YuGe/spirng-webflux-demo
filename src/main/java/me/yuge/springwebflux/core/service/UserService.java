@@ -1,5 +1,6 @@
 package me.yuge.springwebflux.core.service;
 
+import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -21,4 +22,9 @@ public class UserService implements ReactiveUserDetailsService {
     public Mono<UserDetails> findByUsername(String username) {
         return userRepository.findByUsername(username).cast(UserDetails.class);
     }
+
+    public Mono<User> findByLogin(String login) {
+        return userRepository.findByLogin(login.toLowerCase());
+    }
+
 }
