@@ -32,9 +32,15 @@ public class WebConfig implements WebFluxConfigurer {
             try {
                 List<MediaType> mediaTypes = requestHeaders.getAccept();
                 MediaType.sortBySpecificityAndQuality(mediaTypes);
-                System.out.println(mediaTypes);
-
-                responseHeaders.set("X-Demo-Media-Type", "demo.v3; param=full; format=json");
+                // TODO: 2018/05/01 implement Custom Media Type 
+                for (MediaType mediaType: mediaTypes) {
+                    if (mediaType.getSubtype().startsWith("vnd")) {
+                        if (mediaType.getSubtype().endsWith("json")) {
+                            responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+                        }
+                    }
+                    responseHeaders.set("X-Demo-Media-Type", "yuge.v3; param=full; format=json");
+                }
 
                 return mediaTypes;
             } catch (InvalidMediaTypeException ex) {

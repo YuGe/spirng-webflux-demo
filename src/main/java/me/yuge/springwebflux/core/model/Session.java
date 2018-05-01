@@ -28,7 +28,7 @@ public class Session {
     private Instant createdTime = Instant.now();
     private Duration maxIdleTime;
     @Builder.Default
-    private boolean verified = true;
+    private boolean verified = false;
 
     public static String nextSessionId(String userId) {
         // make sure the length of rnd hex string is 16
