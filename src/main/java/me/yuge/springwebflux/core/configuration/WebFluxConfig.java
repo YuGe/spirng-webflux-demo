@@ -6,6 +6,7 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuilder;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -14,7 +15,8 @@ import java.util.List;
 
 
 @Configuration
-public class WebConfig implements WebFluxConfigurer {
+@EnableWebFlux
+public class WebFluxConfig implements WebFluxConfigurer {
 
     @Override
     public void configureContentTypeResolver(RequestedContentTypeResolverBuilder builder) {
@@ -32,7 +34,7 @@ public class WebConfig implements WebFluxConfigurer {
             try {
                 List<MediaType> mediaTypes = requestHeaders.getAccept();
                 MediaType.sortBySpecificityAndQuality(mediaTypes);
-                // TODO: 2018/05/01 implement Custom Media Type 
+                // TODO: 2018/05/01 implement Custom Media Type
                 for (MediaType mediaType: mediaTypes) {
                     if (mediaType.getSubtype().startsWith("vnd")) {
                         if (mediaType.getSubtype().endsWith("json")) {
@@ -50,4 +52,5 @@ public class WebConfig implements WebFluxConfigurer {
             }
         }
     }
+
 }

@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 
 
 @RestController
@@ -28,7 +27,7 @@ public class TweetController {
 
     @GetMapping("/tweets")
     public Flux<Tweet> getAllTweets() {
-        return tweetRepository.findAll();
+        return tweetRepository.findAll().checkpoint("test");
     }
 
     @PostMapping("/tweets")

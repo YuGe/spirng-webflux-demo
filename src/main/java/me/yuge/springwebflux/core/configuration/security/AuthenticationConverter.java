@@ -35,7 +35,6 @@ public class AuthenticationConverter implements Function<ServerWebExchange, Mono
             return Mono.just(SecurityContextHolder.getContext().getAuthentication());
         }
 
-        //noinspection ConstantConditions
         if (authorization == null) {
             return Mono.empty();
         }

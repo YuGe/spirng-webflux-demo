@@ -51,7 +51,7 @@ public class SecurityConfiguration {
     }
 
     private AuthenticationWebFilter getAuthenticationWebFilter() {
-        return  new AuthenticationWebFilter(new AuthenticationManager());
+        return new AuthenticationWebFilter(new AuthenticationManager());
     }
 
     private class AuthenticationManager implements ReactiveAuthenticationManager {
