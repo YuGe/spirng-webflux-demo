@@ -1,12 +1,11 @@
 package me.yuge.springwebflux.core.configuration;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuilder;
-import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -14,8 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import java.util.List;
 
 
-@Configuration
-@EnableWebFlux
+@Component
 public class WebFluxConfig implements WebFluxConfigurer {
 
     @Override
