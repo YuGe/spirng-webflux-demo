@@ -38,5 +38,4 @@ public class UserController {
     public Mono<User> getByLogin(@RequestParam("login") String login) {
         return userRepository.findByLogin(login);
     }
-
 }
