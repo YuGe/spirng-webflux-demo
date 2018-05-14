@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public class MutualOperatorTests {
 
+public class MutualOperatorTests {
     @Test
     public void testTransform() {
         Function<Flux<String>, Flux<String>> filterAndMap =
@@ -47,7 +47,6 @@ public class MutualOperatorTests {
 
     @Test
     public void testHotSource() {
-
         UnicastProcessor<String> hotSource = UnicastProcessor.create();
 
         Flux<String> hotFlux = hotSource.publish()
@@ -65,7 +64,6 @@ public class MutualOperatorTests {
         hotSource.onNext("orange");
         hotSource.onNext("purple");
         hotSource.onComplete();
-
     }
 
 }

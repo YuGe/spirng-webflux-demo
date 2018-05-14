@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class CollectionTests {
 
+public class CollectionTests {
     @Test
     public void whenTransformWithIterable_thenTransformed() {
         Function<String, Integer> function = String::length;
@@ -19,6 +19,5 @@ public class CollectionTests {
         Iterable<Integer> result = names.stream().map(function).collect(Collectors.toList());
 
         Assert.assertThat(result, Matchers.contains(4, 4, 4, 3));
-
     }
 }

@@ -21,6 +21,7 @@ import reactor.test.StepVerifier;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -53,7 +54,7 @@ public class KeyCommandsTests {
         generateRandomKeys();
 
         Mono<Long> keyCount = connection.keyCommands() //
-                .keys(ByteBuffer.wrap(serializer.serialize(KEY_PATTERN))) //
+                .keys(ByteBuffer.wrap(Objects.requireNonNull(serializer.serialize(KEY_PATTERN)))) //
                 .flatMapMany(Flux::fromIterable) //
                 .doOnNext(byteBuffer -> System.out.println(toString(byteBuffer))) //
                 .count() //
