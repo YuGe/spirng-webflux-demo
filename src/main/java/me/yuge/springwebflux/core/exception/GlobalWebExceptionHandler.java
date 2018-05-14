@@ -3,6 +3,7 @@ package me.yuge.springwebflux.core.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import reactor.core.publisher.Mono;
 @Order(-2)
 @Component
 public class GlobalWebExceptionHandler implements WebExceptionHandler {
-
     private final ServerAuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
@@ -24,7 +24,8 @@ public class GlobalWebExceptionHandler implements WebExceptionHandler {
     }
 
     @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    @NonNull
+    public Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable ex) {
         if (ex instanceof AuthenticationException) {
             return authenticationEntryPoint.commence(exchange, (AuthenticationException) ex);
         }

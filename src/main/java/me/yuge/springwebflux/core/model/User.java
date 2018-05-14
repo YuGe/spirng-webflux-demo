@@ -45,8 +45,7 @@ public class User {
             if (role.startsWith(ROLE_PREFIX)) {
                 throw new IllegalArgumentException("Role shouldn't starts with " + ROLE_PREFIX);
             }
-            role = ROLE_PREFIX + role;
-            authorities.add(new SimpleGrantedAuthority(role));
+            authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role));
         }
         return authorities;
     }

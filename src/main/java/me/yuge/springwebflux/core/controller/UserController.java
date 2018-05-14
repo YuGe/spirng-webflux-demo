@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping("users")
 @RestController
 public class UserController {
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -36,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping(params = "login")
-    public Mono<User> getByParam(@RequestParam("login") String login) {
+    public Mono<User> getByLogin(@RequestParam("login") String login) {
         return userRepository.findByLogin(login);
     }
 

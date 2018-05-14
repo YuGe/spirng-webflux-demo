@@ -14,7 +14,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {
-
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Id
@@ -31,9 +30,8 @@ public class Session {
     private boolean verified = false;
 
     public static String nextSessionId(String userId) {
-        // make sure the length of rnd hex string is 16
-        final long rnd = SECURE_RANDOM.nextLong() | (1L << 62);
-        return userId + Long.toHexString(rnd);
+        // make sure the length of random hex string is 16
+        final long random = SECURE_RANDOM.nextLong() | (1L << 62);
+        return userId + Long.toHexString(random);
     }
-
 }
