@@ -15,7 +15,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfiguration {
-
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -39,7 +38,6 @@ public class RedisConfiguration {
     @Bean
     public ReactiveRedisTemplate<String, Session> reactiveJsonSessionRedisTemplate(
             ReactiveRedisConnectionFactory connectionFactory) {
-
         Jackson2JsonRedisSerializer<Session> serializer = new Jackson2JsonRedisSerializer<>(Session.class);
         serializer.setObjectMapper(objectMapper);
         RedisSerializationContext.RedisSerializationContextBuilder<String, Session> builder = RedisSerializationContext
@@ -56,7 +54,6 @@ public class RedisConfiguration {
     @Bean
     public ReactiveRedisTemplate<String, Object> reactiveJsonObjectRedisTemplate(
             ReactiveRedisConnectionFactory connectionFactory) {
-
         RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder = RedisSerializationContext
                 .newSerializationContext(new StringRedisSerializer());
 

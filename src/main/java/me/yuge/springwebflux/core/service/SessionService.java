@@ -16,46 +16,37 @@ public class SessionService {
     private final ReactiveRedisOperations<String, Session> sessionOperations;
 
     @Autowired
-    public SessionService(ApplicationProperties applicationProperties, ReactiveRedisOperations<String, Session> sessionOperations) {
+    public SessionService(ApplicationProperties applicationProperties,
+                          ReactiveRedisOperations<String, Session> sessionOperations) {
         this.sessionPrefix = applicationProperties.getSession().getPrefix();
         this.sessionOperations = sessionOperations;
     }
 
     public Mono<Session> get(String id) {
-        final String sessionKey = getSessionKey(id);
-
-        return sessionOperations.opsForValue().get(sessionKey).flatMap(
-                session -> sessionOperations.expire(sessionKey, session.getMaxIdleTime()).flatMap(
-                        succeeded -> succeeded ? Mono.just(session) : Mono.empty()
-                )
-        );
+        return sessionOperations.opsForValue().get(getSessionKey(id));
     }
 
     public Mono<Session> save(Session session) {
-        String sessionKey = getSessionKey(session.getId());
-
-        return sessionOperations.opsForValue().set(sessionKey, session).flatMap(
-                setSucceeded -> setSucceeded
+        return sessionOperations.opsForValue().set(getSessionKey(session.getId()), session).flatMap(
+                succeeded -> succeeded
                         ? Mono.just(session)
                         : Mono.error(new RedisCommandExecutionException("set error"))
         );
     }
 
     public Mono<Session> expire(Session session) {
-        String sessionKey = getSessionKey(session.getId());
-
-        return sessionOperations.expire(sessionKey, session.getMaxIdleTime()).flatMap(
-                expireSucceeded -> expireSucceeded
+        return sessionOperations.expire(getSessionKey(session.getId()), session.getMaxIdleTime()).flatMap(
+                succeeded -> succeeded
                         ? Mono.just(session)
                         : Mono.error(new RedisCommandExecutionException("expire error"))
         );
     }
 
     public Mono<Void> delete(String id) {
-        final String sessionKey = getSessionKey(id);
-
-        return sessionOperations.opsForValue().delete(sessionKey).flatMap(
-                (s) -> Mono.empty()
+        return sessionOperations.opsForValue().delete(getSessionKey(id)).flatMap(
+                succeeded -> succeeded
+                        ? Mono.empty()
+                        : Mono.error(new RedisCommandExecutionException("delete error"))
         );
     }
 

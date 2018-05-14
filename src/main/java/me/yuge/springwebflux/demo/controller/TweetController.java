@@ -3,6 +3,7 @@ package me.yuge.springwebflux.demo.controller;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,35 +17,39 @@ import java.time.Instant;
 
 
 @RestController
+@RequestMapping("tweets")
 public class TweetController {
 
     private final TweetRepository tweetRepository;
 
     @Autowired
-    public TweetController(TweetRepository tweetRepository) {
+    public TweetController(TweetRepository tweetRepository, ReactiveMongoTemplate mongoTemplate) {
         this.tweetRepository = tweetRepository;
     }
 
-    @GetMapping("/tweets")
-    public Flux<Tweet> getAllTweets() {
-        return tweetRepository.findAll().checkpoint("test");
+    @GetMapping
+    public Flux<Tweet> getAllTweets(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                    @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        return tweetRepository.findAll().skip(size * page).take(size);
     }
 
-    @PostMapping("/tweets")
+    @PostMapping
     @PreAuthorize("hasRole('USER')")
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
-        tweet.setCreatedTime(Instant.now());
+        Instant now = Instant.now();
+        tweet.setCreatedTime(now);
+        tweet.setModifiedTime(now);
         return tweetRepository.save(tweet);
     }
 
-    @GetMapping("/tweets/{id}")
+    @GetMapping("{id}")
     public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
         return tweetRepository.findById(tweetId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/tweets/{id}")
+    @PutMapping("{id}")
     @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
                                                    @Valid @RequestBody Tweet tweet) {
@@ -57,7 +62,7 @@ public class TweetController {
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/tweets/{id}")
+    @DeleteMapping("{id}")
     @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
 

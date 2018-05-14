@@ -21,7 +21,6 @@ import java.util.function.Function;
 
 @Component
 public class BasicAuthentication implements Function<String, Mono<Authentication>> {
-
     static final String BASIC = "Basic ";
 
     private final PasswordEncoder passwordEncoder;
@@ -48,14 +47,20 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         ).switchIfEmpty(
                 Mono.error(new BadCredentialsException("Login or Password not correct"))
         ).flatMap(user -> {
-                    Session session = Session.builder().id(Session.nextSessionId(user.getId()))
-                            .userId(user.getId()).username(user.getUsername()).roles(user.getRoles())
-                            .login(tokens[0]).maxIdleTime(maxIdleTime).build();
-
+                    final Session session = Session.builder()
+                            .id(Session.nextSessionId(user.getId()))
+                            .userId(user.getId())
+                            .username(user.getUsername())
+                            .roles(user.getRoles())
+                            .login(tokens[0])
+                            .maxIdleTime(maxIdleTime)
+                            .build();
                     return sessionService.save(session).flatMap(
                             savedSession -> sessionService.expire(savedSession).map(
                                     expiredSession -> new AuthenticationToken(
-                                            user.getId(), user.getPassword(), session,
+                                            user.getId(),
+                                            user.getPassword(),
+                                            expiredSession,
                                             User.getAuthorities(user.getRoles())
                                     )
                             )
@@ -65,18 +70,14 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
     }
 
     private String[] extractAndDecodeToken(String header) {
-        byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
         try {
+            byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
             String token = new String(Base64.getDecoder().decode(base64Token));
-            Assert.notNull(token, "Token shouldn't be null after Base64 decode");
-
             int delimiterIndex = token.indexOf(":");
             if (delimiterIndex == -1) {
                 throw new BadCredentialsException("Invalid Basic Authentication Token");
             }
-            return new String[]{
-                    token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)
-            };
+            return new String[]{token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)};
         } catch (IllegalArgumentException e) {
             throw new BadCredentialsException("Failed to decode Basic Authentication Token");
         }

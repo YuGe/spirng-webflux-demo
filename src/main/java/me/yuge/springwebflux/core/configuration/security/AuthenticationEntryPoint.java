@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 @Primary
 @Component
 public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
-
     private static final String DEFAULT_REALM = "Realm";
 
     private String basicHeaderValue = createBasicHeaderValue(DEFAULT_REALM);
@@ -36,8 +35,7 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
                 : e.getMessage();
 
         final DataBuffer buffer = response.bufferFactory().wrap(message.getBytes());
-        return response.writeWith(Mono.just(buffer))
-                .doOnError(error -> DataBufferUtils.release(buffer));
+        return response.writeWith(Mono.just(buffer)).doOnError(error -> DataBufferUtils.release(buffer));
     }
 
     /**
@@ -60,5 +58,4 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
         Assert.notNull(realm, "realm cannot be null");
         return String.format("Bearer realm=\"%s\"", realm);
     }
-
 }

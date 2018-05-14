@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class JacksonConfiguration {
-
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer addCustomSerialization() {
         return jacksonObjectMapperBuilder -> {
@@ -63,7 +62,6 @@ public class JacksonConfiguration {
     }
 
     class DurationSerializer extends StdSerializer<Duration> {
-
         private static final long serialVersionUID = -2503379922016963229L;
 
         DurationSerializer() {
@@ -77,7 +75,6 @@ public class JacksonConfiguration {
     }
 
     class DurationDeserializer extends StdDeserializer<Duration> {
-
         private static final long serialVersionUID = 3749670507765516154L;
 
         DurationDeserializer() {

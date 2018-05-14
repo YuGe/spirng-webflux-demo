@@ -30,7 +30,6 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-
         // Disabled default security
         http.httpBasic().disable();
         http.formLogin().disable();

@@ -12,6 +12,9 @@ spring:
   data:
     mongodb:
       database: dev
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
 
 ---
 spring:
@@ -23,3 +26,6 @@ spring:
   redis:
     host: redis
     password: xPwRXvRS7kdcFQMn9hXe8fNt8FUmP28CrvbpLpwP7H7uvJRMM9YLNvUk5T4x4TCc
+logging:
+  level:
+    root: ERROR

@@ -1,9 +1,6 @@
 package me.yuge.springwebflux.demo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -26,12 +23,14 @@ public class Tweet {
     @Size(max = 140)
     private String text;
 
-    private Instant createdTime;
-    private Instant modifiedTime;
+    @Builder.Default
+    private Instant createdTime = Instant.now();
 
-    public Tweet(String text) {
+    @Builder.Default
+    private Instant modifiedTime = Instant.now();
+
+    public Tweet(@NotBlank @Size(max = 140) String text) {
         this.text = text;
-        this.createdTime = Instant.now();
-        this.modifiedTime = Instant.now();
     }
+
 }

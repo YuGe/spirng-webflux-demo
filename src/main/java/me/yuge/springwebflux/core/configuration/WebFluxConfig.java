@@ -3,6 +3,7 @@ package me.yuge.springwebflux.core.configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuilder;
@@ -15,17 +16,15 @@ import java.util.List;
 
 @Component
 public class WebFluxConfig implements WebFluxConfigurer {
-
     @Override
     public void configureContentTypeResolver(RequestedContentTypeResolverBuilder builder) {
         builder.resolver(new HeaderContentTypeResolver());
     }
 
     private class HeaderContentTypeResolver implements RequestedContentTypeResolver {
-
         @Override
-        public List<MediaType> resolveMediaTypes(ServerWebExchange exchange) {
-
+        @NonNull
+        public List<MediaType> resolveMediaTypes(@NonNull ServerWebExchange exchange) {
             final HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
             final HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
 
@@ -39,9 +38,8 @@ public class WebFluxConfig implements WebFluxConfigurer {
                             responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
                         }
                     }
-                    responseHeaders.set("X-Demo-Media-Type", "yuge.v3; param=full; format=json");
+                    responseHeaders.set("X-Demo-Media-Type", "demo.v3; param=full; format=json");
                 }
-
                 return mediaTypes;
             } catch (InvalidMediaTypeException ex) {
                 final String value = requestHeaders.getFirst(HttpHeaders.ACCEPT);
@@ -50,5 +48,4 @@ public class WebFluxConfig implements WebFluxConfigurer {
             }
         }
     }
-
 }

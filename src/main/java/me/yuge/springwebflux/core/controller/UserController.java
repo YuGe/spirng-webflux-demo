@@ -25,6 +25,11 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @GetMapping("{id}")
+    public Mono<User> get(@PathVariable() String id) {
+        return userRepository.findById(id);
+    }
+
     @GetMapping(params = "username")
     public Mono<User> getByUsername(@RequestParam("username") String username) {
         return userRepository.findByUsername(username).switchIfEmpty(Mono.error(new NotFoundException()));
@@ -32,13 +37,7 @@ public class UserController {
 
     @GetMapping(params = "login")
     public Mono<User> getByParam(@RequestParam("login") String login) {
-        System.out.println("test");
         return userRepository.findByLogin(login);
-    }
-
-    @GetMapping("{id}")
-    public Mono<User> get(@PathVariable() String id) {
-        return userRepository.findById(id);
     }
 
 }

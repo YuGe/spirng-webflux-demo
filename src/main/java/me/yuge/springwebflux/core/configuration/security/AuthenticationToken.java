@@ -7,7 +7,6 @@ import java.util.Collection;
 
 
 class AuthenticationToken extends AbstractAuthenticationToken {
-
     private static final long serialVersionUID = -1126325598266222359L;
 
     private final Object principal;
@@ -57,5 +56,4 @@ class AuthenticationToken extends AbstractAuthenticationToken {
         super.eraseCredentials();
         credentials = null;
     }
-
 }

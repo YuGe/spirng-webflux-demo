@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 @Component
 public class AuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
-
     private final BasicAuthentication basicAuthentication;
     private final BearerAuthentication bearerAuthentication;
 
@@ -30,24 +29,20 @@ public class AuthenticationConverter implements Function<ServerWebExchange, Mono
         ServerHttpRequest request = serverWebExchange.getRequest();
         String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        // SecurityContext already exist. Most for test with mock user.
+        // SecurityContext already exist. For test with mock user.
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             return Mono.just(SecurityContextHolder.getContext().getAuthentication());
         }
-
         if (authorization == null) {
             return Mono.empty();
         }
-
         if (authorization.startsWith(BearerAuthentication.BEARER)) {
             return bearerAuthentication.apply(authorization);
         }
-
         if (authorization.startsWith(BasicAuthentication.BASIC)) {
             return basicAuthentication.apply(authorization);
         }
 
         return Mono.error(new BadCredentialsException("Invalid Authorization Header"));
     }
-
 }

@@ -13,7 +13,6 @@ import java.util.function.Function;
 
 @Component
 public class BearerAuthentication implements Function<String, Mono<Authentication>> {
-
     static final String BEARER = "Bearer ";
 
     private final SessionService sessionService;
@@ -25,15 +24,17 @@ public class BearerAuthentication implements Function<String, Mono<Authenticatio
 
     @Override
     public Mono<Authentication> apply(String authorization) {
-        String token = authorization.substring(7);
+        final String token = authorization.substring(7);
 
-        return sessionService.get(token).switchIfEmpty(Mono.error(
-                new BadCredentialsException("Invalid Bearer Authentication Token")
-        )).flatMap(session -> sessionService.expire(session)
-                .map(expiredSession -> new AuthenticationToken(
-                                expiredSession.getUserId(), token, expiredSession,
-                                User.getAuthorities(expiredSession.getRoles())
-                        )
-                ));
+        return sessionService.get(token).switchIfEmpty(
+                Mono.error(new BadCredentialsException("Invalid Bearer Authentication Token"))
+        ).flatMap(session -> sessionService.expire(session).map(
+                expiredSession -> new AuthenticationToken(
+                        expiredSession.getUserId(),
+                        token,
+                        expiredSession,
+                        User.getAuthorities(expiredSession.getRoles())
+                )
+        ));
     }
 }
