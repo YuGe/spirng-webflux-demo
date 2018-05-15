@@ -1,6 +1,6 @@
 package me.yuge.springwebflux.core.controller;
 
-import me.yuge.springwebflux.core.exception.ForbiddenException;
+import me.yuge.springwebflux.core.exception.ForbiddenStatusException;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class SessionController {
                 authSession -> sessionService.get(id).filter(
                         targetSession -> Objects.equals(targetSession.getUserId(), authSession.getUserId())
                 ).switchIfEmpty(
-                        Mono.error(new ForbiddenException("Not allowed to access this session"))
+                        Mono.error(new ForbiddenStatusException("Not allowed to access this session"))
                 )
         );
     }
@@ -49,7 +49,7 @@ public class SessionController {
                 authSession -> sessionService.get(id).filter(
                         targetSession -> Objects.equals(targetSession.getUserId(), authSession.getUserId())
                 ).switchIfEmpty(
-                        Mono.error(new ForbiddenException("Not allowed to delete this session"))
+                        Mono.error(new ForbiddenStatusException("Not allowed to delete this session"))
                 ).flatMap(session -> sessionService.delete(session.getId()))
         );
     }

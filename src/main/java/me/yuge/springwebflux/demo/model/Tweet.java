@@ -30,5 +30,4 @@ public class Tweet {
         this.createdTime = Instant.now();
         this.modifiedTime = Instant.now();
     }
-
 }

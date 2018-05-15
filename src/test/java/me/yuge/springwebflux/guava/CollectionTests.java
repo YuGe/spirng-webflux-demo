@@ -13,10 +13,8 @@ import java.util.stream.Collectors;
 public class CollectionTests {
     @Test
     public void whenTransformWithIterable_thenTransformed() {
-        Function<String, Integer> function = String::length;
-
         List<String> names = Lists.newArrayList("John", "Jane", "Adam", "Tom");
-        Iterable<Integer> result = names.stream().map(function).collect(Collectors.toList());
+        Iterable<Integer> result = names.stream().map(String::length).collect(Collectors.toList());
 
         Assert.assertThat(result, Matchers.contains(4, 4, 4, 3));
     }

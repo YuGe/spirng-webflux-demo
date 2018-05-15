@@ -1,38 +1,33 @@
 package me.yuge.springwebflux.demo;
 
+import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.function.Consumer;
-
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TweetControllerTests {
-
     @Autowired
-    ApplicationContext context;
-
+    private ApplicationContext context;
     @Autowired
-    TweetRepository tweetRepository;
+    private TweetRepository tweetRepository;
 
     private WebTestClient webTestClient;
 
@@ -40,24 +35,20 @@ public class TweetControllerTests {
     public void setup() {
         this.webTestClient = WebTestClient
                 .bindToApplicationContext(this.context)
-                .apply(springSecurity())
+                .apply(SecurityMockServerConfigurers.springSecurity())
                 .configureClient()
-                .filter(basicAuthentication())
                 .build();
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = User.Role.USER)
     public void testCreateTweet() {
         Tweet tweet = new Tweet("This is a Test Tweet");
 
         webTestClient.post().uri("/tweets")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
                 .body(Mono.just(tweet), Tweet.class)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
                 .expectBody()
                 .jsonPath("$.id").isNotEmpty()
                 .jsonPath("$.text").isEqualTo("This is a Test Tweet");
@@ -66,58 +57,49 @@ public class TweetControllerTests {
     @Test
     public void testGetAllTweets() {
         webTestClient.get().uri("/tweets")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
                 .expectBodyList(Tweet.class);
     }
 
     @Test
     public void testGetSingleTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block();
+        Assert.notNull(tweet, "tweet should not be null");
 
-        webTestClient.get()
-                .uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
+        webTestClient.get().uri("/tweets/{id}", Maps.newHashMap("id", tweet.getId()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .consumeWith(response ->
-                        Assertions.assertThat(response.getResponseBody()).isNotNull());
+                .consumeWith(
+                        response -> Assertions.assertThat(response.getResponseBody()).isNotNull()
+                );
     }
 
     @Test
+    @WithMockUser(roles = User.Role.USER)
     public void testUpdateTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block();
+        Assert.notNull(tweet, "tweet should not be null");
 
-        Tweet newTweetData = new Tweet("Updated Tweet");
+        tweet.setText("Updated Tweet");
 
-        webTestClient.put()
-                .uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
-                .attributes(adminCredentials())
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .body(Mono.just(newTweetData), Tweet.class)
+        webTestClient.put().uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
+                .body(Mono.just(tweet), Tweet.class)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
                 .expectBody()
                 .jsonPath("$.text").isEqualTo("Updated Tweet");
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = User.Role.USER)
     public void testDeleteTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
+        Assert.notNull(tweet, "tweet should not be null");
 
-        webTestClient.delete()
-                .uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
+        webTestClient.delete().uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
                 .exchange()
                 .expectStatus().isOk();
     }
-
-    private Consumer<Map<String, Object>> adminCredentials() {
-        return basicAuthenticationCredentials("admin", "FooBar123");
-    }
-
 }

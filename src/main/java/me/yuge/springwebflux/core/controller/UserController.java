@@ -1,6 +1,6 @@
 package me.yuge.springwebflux.core.controller;
 
-import me.yuge.springwebflux.core.exception.NotFoundException;
+import me.yuge.springwebflux.core.exception.NotFoundStatusException;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +31,11 @@ public class UserController {
 
     @GetMapping(params = "username")
     public Mono<User> getByUsername(@RequestParam("username") String username) {
-        return userRepository.findByUsername(username).switchIfEmpty(Mono.error(new NotFoundException()));
+        return userRepository.findByUsername(username).switchIfEmpty(Mono.error(new NotFoundStatusException()));
     }
 
     @GetMapping(params = "login")
     public Mono<User> getByLogin(@RequestParam("login") String login) {
-        return userRepository.findByLogin(login);
+        return userRepository.findByLogin(login).switchIfEmpty(Mono.error(new NotFoundStatusException()));
     }
 }

@@ -20,8 +20,6 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "users")
 public class User {
-    private static final String ROLE_PREFIX = "ROLE_";
-
     @Id
     private String id;
     @Indexed(unique = true)
@@ -39,6 +37,13 @@ public class User {
     private String[] roles = new String[]{};
     @Builder.Default()
     private boolean active = true;
+
+    public static class Role {
+        final public static String USER = "USER";
+        final public static String ADMIN = "ADMIN";
+    }
+
+    private static final String ROLE_PREFIX = "ROLE_";
 
     public static Collection<? extends GrantedAuthority> getAuthorities(String[] roles) {
         List<GrantedAuthority> authorities = new ArrayList<>(roles.length);

@@ -3,6 +3,7 @@ package me.yuge.springwebflux.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.yuge.springwebflux.core.model.Session;
+import me.yuge.springwebflux.core.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,9 @@ public class RedisJacksonJsonTests {
     @Test
     public void shouldWriteAndReadPerson() throws JsonProcessingException {
         Session session = Session.builder().id("id").userId("user_id")
-                .username("username").roles(new String[]{"USER", "ADMIN"}).build();
+                .username("username")
+                .roles(new String[]{User.Role.USER, User.Role.ADMIN})
+                .build();
 
         StepVerifier.create(typedOperations.opsForValue().set("session", session))
                 .expectNext(true)
@@ -56,7 +59,7 @@ public class RedisJacksonJsonTests {
     public void shouldWriteAndReadSessionObject() throws JsonProcessingException {
 
         Session session = Session.builder().id("id").userId("user_id")
-                .username("username").roles(new String[]{"USER", "ADMIN"}).build();
+                .username("username").roles(new String[]{User.Role.USER, User.Role.ADMIN}).build();
 
         StepVerifier.create(genericOperations.opsForValue().set("session", session))
                 .expectNext(true)
@@ -69,10 +72,5 @@ public class RedisJacksonJsonTests {
         StepVerifier.create(get)
                 .expectNext(objectMapper.writeValueAsString(session))
                 .verifyComplete();
-
-//        StepVerifier.create(genericOperations.opsForValue().get("mail"))
-//                .expectNext(email)
-//                .verifyComplete();
     }
-
 }

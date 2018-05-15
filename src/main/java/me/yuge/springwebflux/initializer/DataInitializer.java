@@ -8,48 +8,52 @@ import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+
+import java.util.Arrays;
 
 
 @Slf4j
 @Component
 public class DataInitializer {
-    private final TweetRepository tweetRepository;
+    private final Environment environment;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory;
+    private final TweetRepository tweetRepository;
 
     @Autowired
-    public DataInitializer(TweetRepository tweetRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory) {
-        this.tweetRepository = tweetRepository;
+    public DataInitializer(Environment environment, UserRepository userRepository, PasswordEncoder passwordEncoder, TweetRepository tweetRepository) {
+        this.environment = environment;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.reactiveMongoDatabaseFactory = reactiveMongoDatabaseFactory;
+        this.tweetRepository = tweetRepository;
     }
 
-//    @EventListener(value = ContextRefreshedEvent.class)
+    @EventListener(value = ContextRefreshedEvent.class)
     public void init() {
-        reactiveMongoDatabaseFactory.getMongoDatabase().drop();
-        initPosts();
-        initUsers();
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> (env.equalsIgnoreCase("dev")))) {
+            initPosts();
+            initUsers();
+        }
     }
 
     private void initUsers() {
         log.info("start userRepository initialization  ...");
         this.userRepository.deleteAll().thenMany(
-                Flux.just("user", "admin").flatMap(username -> {
-                    String[] roles = "user".equals(username)
-                            ? new String[]{"USER"}
-                            : new String[]{"USER", "ADMIN"};
+                Flux.just("foo", "admin").flatMap(username -> {
+                    String[] roles = "admin".equals(username)
+                            ? new String[]{User.Role.USER, User.Role.ADMIN}
+                            : new String[]{User.Role.USER};
+                    String email = username + "@bar.com";
                     User user = User.builder()
                             .username(username)
-                            .email(username + "@bar.com")
+                            .email(email)
                             .password(passwordEncoder.encode("FooBar123"))
                             .roles(roles)
-                            .login(new String[]{username, username + "@bar.com"})
+                            .login(new String[]{username, email})
                             .build();
                     return this.userRepository.save(user);
                 })
@@ -60,8 +64,8 @@ public class DataInitializer {
         log.info("start tweetRepository initialization  ...");
         this.tweetRepository.deleteAll().thenMany(
                 Flux.just("Tweet one", "Tweet two", "推特 3").flatMap(
-                        text -> this.tweetRepository.save(Tweet.builder().text(text).build())
+                        text -> this.tweetRepository.save(new Tweet(text))
                 )
-        ).subscribe(null, null, () -> log.info("done initialization..."));
+        ).subscribe(null, null, () -> log.info("done tweetRepository initialization..."));
     }
 }
