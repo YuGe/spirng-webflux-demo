@@ -1,6 +1,5 @@
 package me.yuge.springwebflux.core;
 
-import me.yuge.springwebflux.Application;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,7 @@ import java.util.UUID;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest
 public class KeyCommandsTests {
 
     private static final String PREFIX = KeyCommandsTests.class.getSimpleName();
