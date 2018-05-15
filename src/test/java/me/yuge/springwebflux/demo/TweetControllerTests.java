@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -30,7 +29,7 @@ public class TweetControllerTests {
     private TweetRepository tweetRepository;
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser
     public void testCreateTweet() {
         Tweet tweet = new Tweet("This is a Test Tweet");
 
@@ -66,7 +65,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser
     public void testUpdateTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block(Duration.ofSeconds(5));
         Objects.requireNonNull(tweet);
@@ -82,7 +81,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser
     public void testDeleteTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block(Duration.ofSeconds(5));
         Objects.requireNonNull(tweet);

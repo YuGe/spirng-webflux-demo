@@ -17,6 +17,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("tweets")
+@PreAuthorize("isAuthenticated()")
 public class TweetController {
 
     private final TweetRepository tweetRepository;
@@ -27,13 +28,13 @@ public class TweetController {
     }
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     public Flux<Tweet> getAllTweets(@RequestParam(name = "page", defaultValue = "0") Integer page,
                                     @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return tweetRepository.findAll().skip(size * page).take(size);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
         Instant now = Instant.now();
         tweet.setCreatedTime(now);
@@ -42,6 +43,7 @@ public class TweetController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("permitAll()")
     public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
         return tweetRepository.findById(tweetId)
                 .map(ResponseEntity::ok)
@@ -49,7 +51,6 @@ public class TweetController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
                                                    @Valid @RequestBody Tweet tweet) {
         return tweetRepository.findById(tweetId)
@@ -62,7 +63,6 @@ public class TweetController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
 
         return tweetRepository.findById(tweetId)

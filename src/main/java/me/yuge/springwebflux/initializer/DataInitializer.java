@@ -46,8 +46,8 @@ public class DataInitializer {
         this.userRepository.deleteAll().thenMany(
                 Flux.just("foo", "admin").flatMap(username -> {
                     String[] roles = "admin".equals(username)
-                            ? new String[]{"USER", "ADMIN"}
-                            : new String[]{"USER"};
+                            ? new String[]{"ADMIN"}
+                            : new String[]{};
                     String email = username + "@bar.com";
                     User user = User.builder()
                             .username(username)
