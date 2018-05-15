@@ -13,8 +13,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
     @Id
     private String id;
     private String userId;
@@ -27,6 +25,8 @@ public class Session {
     private Duration maxIdleTime;
     @Builder.Default
     private boolean verified = false;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public static String nextSessionId(String userId) {
         // make sure the length of random hex string is 16

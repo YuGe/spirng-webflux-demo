@@ -38,11 +38,6 @@ public class User {
     @Builder.Default()
     private boolean active = true;
 
-    public static class Role {
-        final public static String USER = "USER";
-        final public static String ADMIN = "ADMIN";
-    }
-
     private static final String ROLE_PREFIX = "ROLE_";
 
     public static Collection<? extends GrantedAuthority> getAuthorities(String[] roles) {

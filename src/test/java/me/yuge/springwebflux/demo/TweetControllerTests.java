@@ -1,6 +1,5 @@
 package me.yuge.springwebflux.demo;
 
-import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.assertj.core.api.Assertions;
@@ -41,7 +40,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = User.Role.USER)
+    @WithMockUser(roles = "USER")
     public void testCreateTweet() {
         Tweet tweet = new Tweet("This is a Test Tweet");
 
@@ -77,7 +76,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = User.Role.USER)
+    @WithMockUser(roles = "USER")
     public void testUpdateTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block();
         Assert.notNull(tweet, "tweet should not be null");
@@ -93,7 +92,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = User.Role.USER)
+    @WithMockUser(roles = "USER")
     public void testDeleteTweet() {
         Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
         Assert.notNull(tweet, "tweet should not be null");

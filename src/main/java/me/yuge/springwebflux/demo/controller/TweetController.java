@@ -3,7 +3,6 @@ package me.yuge.springwebflux.demo.controller;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class TweetController {
     private final TweetRepository tweetRepository;
 
     @Autowired
-    public TweetController(TweetRepository tweetRepository, ReactiveMongoTemplate mongoTemplate) {
+    public TweetController(TweetRepository tweetRepository) {
         this.tweetRepository = tweetRepository;
     }
 
