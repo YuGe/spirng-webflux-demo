@@ -1,9 +1,7 @@
 package me.yuge.springwebflux.core.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -31,6 +29,8 @@ public class User {
     private String email;
     @Indexed(unique = true, sparse = true)
     private String phone;
+    @Getter(onMethod = @__(@JsonIgnore))
+    @Setter
     private String password;
     @Indexed(unique = true, sparse = true)
     private String[] login; // contains username, email, phone

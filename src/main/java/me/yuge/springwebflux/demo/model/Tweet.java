@@ -15,22 +15,20 @@ import java.time.Instant;
 @AllArgsConstructor
 @Document(collection = "tweets")
 public class Tweet {
-
     @Id
     private String id;
-
     @NotBlank
     @Size(max = 140)
     private String text;
-
     @Builder.Default
     private Instant createdTime = Instant.now();
-
     @Builder.Default
     private Instant modifiedTime = Instant.now();
 
     public Tweet(@NotBlank @Size(max = 140) String text) {
         this.text = text;
+        this.createdTime = Instant.now();
+        this.modifiedTime = Instant.now();
     }
 
 }
