@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static me.yuge.springwebflux.websocket.model.Event.Type.USER_LEFT;
-
 
 public class ChatWebSocketHandler implements WebSocketHandler {
     final private static UnicastProcessor<Event> EVENT_UNICAST_PROCESSOR = UnicastProcessor.create();
@@ -37,8 +35,8 @@ public class ChatWebSocketHandler implements WebSocketHandler {
         WebSocketMessageSubscriber subscriber = new WebSocketMessageSubscriber(EVENT_UNICAST_PROCESSOR);
 
         session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .map(this::toEvent)
+                .map(WebSocketMessage::getPayloadAsText).log()
+                .map(this::toEvent).log()
                 .subscribe(subscriber::onNext, subscriber::onError, subscriber::onComplete);
 
         return session.send(OUTPUT_EVENTS.map(this::toJSON).map(session::textMessage));
@@ -84,7 +82,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             if (lastReceivedEvent == null) return;
 
             eventUnicastProcessor.onNext(Event.builder()
-                    .type(USER_LEFT)
+                    .type(Event.Type.USER_LEFT)
                     .payload(new Payload(lastReceivedEvent.getUser()))
                     .build()
             );

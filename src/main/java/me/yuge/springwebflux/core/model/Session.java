@@ -10,7 +10,6 @@ import java.time.Instant;
 
 @Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {
