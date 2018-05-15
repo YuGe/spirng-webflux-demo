@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +38,10 @@ public class User {
     private String[] roles = new String[]{};
     @Builder.Default()
     private boolean active = true;
+    @Builder.Default()
+    private Instant createdTime = Instant.now();
+    @Builder.Default()
+    private Instant modifiedTime = Instant.now();
 
     private static final String ROLE_PREFIX = "ROLE_";
 

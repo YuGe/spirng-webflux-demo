@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @RunWith(SpringRunner.class)
@@ -29,13 +32,12 @@ import java.time.Duration;
 public class WebSocketHandlerTests {
     @LocalServerPort
     private String port;
-
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper objectMapper;
 
     @Test
     public void testEcho() throws Exception {
-        Duration timeout = Duration.ofMillis(1000);
+        Duration timeout = Duration.ofSeconds(5);
 
         int count = 4;
         Flux<String> input = Flux.range(1, count).map(index -> "msg-" + index);
@@ -54,20 +56,21 @@ public class WebSocketHandlerTests {
 
     @Test
     public void testChat() throws URISyntaxException {
-        Duration timeout = Duration.ofMillis(10000);
-
+        Duration timeout = Duration.ofSeconds(5);
         int count = 4;
-        Flux<Event> input = Flux.range(1, count).map(index ->
+
+        List<Event> input = IntStream.rangeClosed(1, count).boxed().map(index ->
                 Event.builder()
                         .type(Event.Type.CHAT_MESSAGE)
                         .payload(new Payload(User.builder().username("Chat1").build()))
                         .build()
-        );
+        ).collect(Collectors.toList());
+
         ReplayProcessor<Event> output = ReplayProcessor.create(count);
 
         WebSocketClient client = new ReactorNettyWebSocketClient();
         client.execute(getUrl("/ws/chat"), session -> session
-                .send(input.map(this::toJSON).map(session::textMessage))
+                .send(Flux.fromIterable(input).map(this::toJSON).map(session::textMessage))
                 .thenMany(session.receive().take(count))
                 .map(WebSocketMessage::getPayloadAsText)
                 .map(this::toEvent)
@@ -75,7 +78,7 @@ public class WebSocketHandlerTests {
                 .then()
         ).block(timeout);
 
-        Assert.assertEquals(input.map(Event::getPayload).collectList().block(timeout),
+        Assert.assertEquals(input.stream().map(Event::getPayload).collect(Collectors.toList()),
                 output.map(Event::getPayload).collectList().block(timeout));
     }
 
@@ -85,7 +88,7 @@ public class WebSocketHandlerTests {
 
     private Event toEvent(String json) {
         try {
-            return mapper.readValue(json, Event.class);
+            return objectMapper.readValue(json, Event.class);
         } catch (IOException e) {
             throw new RuntimeException("Invalid JSON:" + json, e);
         }
@@ -93,7 +96,7 @@ public class WebSocketHandlerTests {
 
     private String toJSON(Event event) {
         try {
-            return mapper.writeValueAsString(event);
+            return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

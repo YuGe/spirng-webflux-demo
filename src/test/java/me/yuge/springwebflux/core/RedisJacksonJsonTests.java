@@ -3,7 +3,6 @@ package me.yuge.springwebflux.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.yuge.springwebflux.core.model.Session;
-import me.yuge.springwebflux.core.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
-import sun.plugin2.gluegen.runtime.BufferFactory;
 
 import java.nio.ByteBuffer;
 

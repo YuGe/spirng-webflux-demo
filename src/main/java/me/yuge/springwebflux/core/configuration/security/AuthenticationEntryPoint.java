@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -50,12 +49,10 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
     }
 
     private static String createBasicHeaderValue(String realm) {
-        Assert.notNull(realm, "realm cannot be null");
         return String.format("Basic realm=\"%s\"", realm);
     }
 
     private static String createBearerHeaderValue(String realm) {
-        Assert.notNull(realm, "realm cannot be null");
         return String.format("Bearer realm=\"%s\"", realm);
     }
 }

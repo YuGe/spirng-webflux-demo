@@ -4,6 +4,7 @@ import me.yuge.springwebflux.core.exception.ForbiddenStatusException;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("session")
+@PreAuthorize("isAuthenticated()")
 public class SessionController {
     private final SessionService sessionService;
 
@@ -29,6 +31,7 @@ public class SessionController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("isAuthenticated()")
     public Mono<Session> get(@PathVariable(value = "id") String id) {
         return ReactiveSecurityContextHolder.getContext().map(
                 securityContext -> securityContext.getAuthentication().getDetails()

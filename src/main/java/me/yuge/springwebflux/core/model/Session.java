@@ -3,6 +3,7 @@ package me.yuge.springwebflux.core.model;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;

@@ -4,40 +4,30 @@ import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Maps;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Collections;
+import java.util.Objects;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
+@AutoConfigureWebTestClient
+@RunWith(SpringRunner.class)
 public class TweetControllerTests {
     @Autowired
-    private ApplicationContext context;
+    private WebTestClient webTestClient;
     @Autowired
     private TweetRepository tweetRepository;
-
-    private WebTestClient webTestClient;
-
-    @Before
-    public void setup() {
-        this.webTestClient = WebTestClient
-                .bindToApplicationContext(this.context)
-                .apply(SecurityMockServerConfigurers.springSecurity())
-                .configureClient()
-                .build();
-    }
 
     @Test
     @WithMockUser(roles = "USER")
@@ -63,8 +53,8 @@ public class TweetControllerTests {
 
     @Test
     public void testGetSingleTweet() {
-        Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block();
-        Assert.notNull(tweet, "tweet should not be null");
+        Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block(Duration.ofSeconds(5));
+        Objects.requireNonNull(tweet);
 
         webTestClient.get().uri("/tweets/{id}", Maps.newHashMap("id", tweet.getId()))
                 .exchange()
@@ -78,8 +68,8 @@ public class TweetControllerTests {
     @Test
     @WithMockUser(roles = "USER")
     public void testUpdateTweet() {
-        Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block();
-        Assert.notNull(tweet, "tweet should not be null");
+        Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block(Duration.ofSeconds(5));
+        Objects.requireNonNull(tweet);
 
         tweet.setText("Updated Tweet");
 
@@ -94,8 +84,8 @@ public class TweetControllerTests {
     @Test
     @WithMockUser(roles = "USER")
     public void testDeleteTweet() {
-        Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
-        Assert.notNull(tweet, "tweet should not be null");
+        Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block(Duration.ofSeconds(5));
+        Objects.requireNonNull(tweet);
 
         webTestClient.delete().uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
                 .exchange()

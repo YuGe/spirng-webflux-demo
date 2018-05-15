@@ -13,7 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class UserTests {
+public class UserControllerTests {
     @Autowired
     private WebTestClient webTestClient;
 
@@ -27,11 +27,19 @@ public class UserTests {
 
     @Test
     public void testGetByUsername() {
-        webTestClient.get().uri("/users?username=foo")
+        webTestClient.get().uri("/users?username=admin")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.username").isEqualTo("foo");
+                .jsonPath("$.username").isEqualTo("admin");
     }
 
+    @Test
+    public void testGetByLogin() {
+        webTestClient.get().uri("/users?login=admin@bar.com")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.username").isEqualTo("admin");
+    }
 }

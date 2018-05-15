@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 
@@ -57,15 +58,17 @@ public class DataInitializer {
                             .build();
                     return this.userRepository.save(user);
                 })
-        ).subscribe(null, null, () -> log.info("done userRepository initialization..."));
+        ).blockLast(Duration.ofSeconds(5));
+        log.info("done userRepository initialization...");
     }
 
     private void initPosts() {
         log.info("start tweetRepository initialization  ...");
         this.tweetRepository.deleteAll().thenMany(
-                Flux.just("Tweet one", "Tweet two", "推特 3").flatMap(
+                Flux.just("Tweet one", "Tweet 2", "推特三").flatMap(
                         text -> this.tweetRepository.save(new Tweet(text))
                 )
-        ).subscribe(null, null, () -> log.info("done tweetRepository initialization..."));
+        ).blockLast(Duration.ofSeconds(5));
+        log.info("done tweetRepository initialization...");
     }
 }
