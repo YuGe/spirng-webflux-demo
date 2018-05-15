@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.Objects;
 
 
-@SpringBootTest
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
+@SpringBootTest
 public class TweetControllerTests {
     @Autowired
     private WebTestClient webTestClient;
