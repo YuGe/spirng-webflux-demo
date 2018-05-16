@@ -1,9 +1,10 @@
 package me.yuge.springwebflux.core.model;
 
-import lombok.*;
-import org.springframework.data.annotation.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,7 +15,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {
-    @Id
     private String id;
     private String userId;
     private String username;
