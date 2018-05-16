@@ -18,24 +18,21 @@ import java.nio.ByteBuffer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class RedisJacksonJsonTests {
-
-    @Autowired
-    ReactiveRedisOperations<String, Session> typedOperations;
-    @Autowired
-    ReactiveRedisOperations<String, Object> genericOperations;
+public class RedisOperationsTests {
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    ReactiveRedisOperations<String, Session> sessionOperations;
 
     @Test
-    public void shouldWriteAndReadSession() throws JsonProcessingException {
-        Session session = Session.builder().id("id").userId("user_id").build();
+    public void testWriteReadSession() throws JsonProcessingException {
+        Session session = Session.builder().id("id").userId("user_id").username("中文").build();
 
-        StepVerifier.create(typedOperations.opsForValue().set("session", session))
+        StepVerifier.create(sessionOperations.opsForValue().set("session", session))
                 .expectNext(true)
                 .verifyComplete();
 
-        Flux<String> get = typedOperations.execute(
+        Flux<String> get = sessionOperations.execute(
                 conn -> conn.stringCommands().get(ByteBuffer.wrap("session".getBytes()))
         ).map(ByteUtils::getBytes).map(String::new);
 
@@ -43,26 +40,12 @@ public class RedisJacksonJsonTests {
                 .expectNext(objectMapper.writeValueAsString(session))
                 .verifyComplete();
 
-        StepVerifier.create(typedOperations.opsForValue().get("session"))
+        StepVerifier.create(sessionOperations.opsForValue().get("session"))
                 .expectNext(session)
                 .verifyComplete();
-    }
 
-    @Test
-    public void shouldWriteAndReadSessionObject() throws JsonProcessingException {
-
-        Session session = Session.builder().id("id").userId("user_id").build();
-
-        StepVerifier.create(genericOperations.opsForValue().set("session", session))
+        StepVerifier.create(sessionOperations.opsForValue().delete("session"))
                 .expectNext(true)
-                .verifyComplete();
-
-        Flux<String> get = genericOperations.execute(
-                conn -> conn.stringCommands().get(ByteBuffer.wrap("session".getBytes()))
-        ).map(ByteUtils::getBytes).map(String::new);
-
-        StepVerifier.create(get)
-                .expectNext(objectMapper.writeValueAsString(session))
                 .verifyComplete();
     }
 }

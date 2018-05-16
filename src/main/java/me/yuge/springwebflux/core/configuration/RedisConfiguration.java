@@ -37,7 +37,7 @@ public class RedisConfiguration {
      * {@link String} keys and a typed {@link Jackson2JsonRedisSerializer}.
      */
     @Bean
-    public ReactiveRedisTemplate<String, Session> reactiveJsonSessionRedisTemplate(
+    public ReactiveRedisTemplate<String, Session> reactiveRedisSessionTemplate(
             ReactiveRedisConnectionFactory connectionFactory) {
         Jackson2JsonRedisSerializer<Session> serializer = new Jackson2JsonRedisSerializer<>(Session.class);
         serializer.setObjectMapper(objectMapper);
@@ -47,22 +47,6 @@ public class RedisConfiguration {
 
         RedisSerializationContext<String, Session> serializationContext = builder
                 .value(serializer).build();
-
-        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
-    }
-
-    /**
-     * Configures a {@link ReactiveRedisTemplate}
-     * with {@link String} keys and {@link GenericJackson2JsonRedisSerializer}.
-     */
-    @Bean
-    public ReactiveRedisTemplate<String, Object> reactiveJsonObjectRedisTemplate(
-            ReactiveRedisConnectionFactory connectionFactory) {
-        RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder = RedisSerializationContext
-                .newSerializationContext(new StringRedisSerializer());
-
-        RedisSerializationContext<String, Object> serializationContext = builder
-                .value(new GenericJackson2JsonRedisSerializer(objectMapper)).build();
 
         return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
     }

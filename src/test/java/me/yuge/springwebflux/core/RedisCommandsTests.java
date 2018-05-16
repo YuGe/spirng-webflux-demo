@@ -19,13 +19,12 @@ import reactor.test.StepVerifier;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.UUID;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class RedisKeyCommandsTests {
-    private static final String PREFIX = RedisKeyCommandsTests.class.getSimpleName();
+public class RedisCommandsTests {
+    private static final String PREFIX = RedisCommandsTests.class.getSimpleName();
     private static final String KEY_PATTERN = PREFIX + "*";
 
     @Autowired
@@ -44,58 +43,43 @@ public class RedisKeyCommandsTests {
      * All keys will be loaded within <strong>one single</strong> operation.
      */
     @Test
-    public void iterateOverKeysMatchingPrefixUsingKeysCommand() {
+    public void testIterateOverKeysMatchingPrefixUsingKeysCommand() {
+        Mono<Long> setCount = connection.stringCommands().set(Flux.range(0, 10)
+                .map(i -> (PREFIX + "-" + i))
+                .map(String::getBytes).map(ByteBuffer::wrap)
+                .map(key -> ReactiveStringCommands.SetCommand.set(key).value(key))
+        ).count();
+        StepVerifier.create(setCount).expectNext(10L).verifyComplete();
 
-        generateRandomKeys();
-
-        Mono<Long> keyCount = connection.keyCommands().del(
+        Mono<Long> keysCount = connection.keyCommands().del(
                 connection.keyCommands()
                         .keys(ByteBuffer.wrap(KEY_PATTERN.getBytes()))
                         .flatMapMany(Flux::fromIterable)
                         .map(ReactiveRedisConnection.KeyCommand::new)
         ).count();
-
-        StepVerifier.create(keyCount).expectNext(10L).verifyComplete();
+        StepVerifier.create(keysCount).expectNext(10L).verifyComplete();
     }
 
     /**
      * Uses {@code RPUSH} to store an item inside a list and {@code BRPOP} <br/>
      */
     @Test
-    public void storeToListAndPop() {
+    public void testPushToListAndPop() {
         ByteBuffer key = ByteBuffer.wrap("list".getBytes());
 
-        Mono<ReactiveListCommands.PopResult> popResult = connection.listCommands()
-                .brPop(Collections.singletonList(key), Duration.ofSeconds(5));
-        Mono<Long> listLength = connection.listCommands().lLen(key);
+        Mono<String> brPop = connection.listCommands()
+                .brPop(Collections.singletonList(key), Duration.ofSeconds(5))
+                .map(ReactiveListCommands.PopResult::getValue)
+                .map(ByteUtils::getBytes)
+                .map(String::new);
 
-        Mono<Long> popAndListLength = connection.listCommands()
+        Mono<Long> lLen = connection.listCommands().lLen(key);
+
+        Mono<Long> popAndLLen = connection.listCommands()
                 .rPush(key, Collections.singletonList(ByteBuffer.wrap("item".getBytes())))
-                .flatMap(l -> popResult.map(r -> toString(r.getValue())))
+                .flatMap(l -> brPop)
                 .doOnNext(i -> Assert.assertEquals("item", i))
-                .flatMap(r -> listLength)
-                .doOnNext(count -> Assert.assertEquals(0, (long) count));
-
-        StepVerifier.create(popAndListLength).expectNext(0L).verifyComplete();
+                .flatMap(r -> lLen);
+        StepVerifier.create(popAndLLen).expectNext(1L).verifyComplete();
     }
-
-    private void generateRandomKeys() {
-        Flux<ReactiveStringCommands.SetCommand> generator = Flux.range(0, 10)
-                .map(i -> (PREFIX + "-" + i))
-                .map(String::getBytes).map(ByteBuffer::wrap)
-                .map(
-                        key -> ReactiveStringCommands.SetCommand.set(key).value(
-                                ByteBuffer.wrap(UUID.randomUUID().toString().getBytes())
-                        )
-                );
-
-        StepVerifier.create(connection.stringCommands().set(generator))
-                .expectNextCount(10)
-                .verifyComplete();
-    }
-
-    private static String toString(ByteBuffer byteBuffer) {
-        return new String(ByteUtils.getBytes(byteBuffer));
-    }
-
 }
