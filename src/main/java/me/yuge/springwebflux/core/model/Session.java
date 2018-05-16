@@ -24,8 +24,6 @@ public class Session {
     @Builder.Default
     private Instant createdTime = Instant.now();
     private Duration maxIdleTime;
-    @Builder.Default
-    private boolean verified = false;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
