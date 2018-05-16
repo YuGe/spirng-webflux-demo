@@ -13,7 +13,7 @@ import java.util.Objects;
 
 
 @RestController
-@RequestMapping("session")
+@RequestMapping("sessions")
 @PreAuthorize("isAuthenticated()")
 public class SessionController {
     private final SessionService sessionService;
@@ -55,5 +55,10 @@ public class SessionController {
                         Mono.error(new ForbiddenStatusException("Not allowed to delete this session"))
                 ).flatMap(session -> sessionService.delete(session.getId()))
         );
+    }
+
+    @DeleteMapping(params = "user_id")
+    public Mono<Void> deleteByUser(@RequestParam("user_id") String userId) {
+        return sessionService.deleteUserSessionAll(userId);
     }
 }

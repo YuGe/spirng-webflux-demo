@@ -55,7 +55,7 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
                             .login(tokens[0])
                             .maxIdleTime(maxIdleTime)
                             .build();
-                    return sessionService.save(session).flatMap(
+                    return sessionService.saveUserSession(session).flatMap(
                             savedSession -> sessionService.expire(savedSession).map(
                                     expiredSession -> new AuthenticationToken(
                                             user.getId(),
