@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: dev
+  output:
+    ansi:
+      enabled: always
 
 application:
   session:
@@ -28,4 +31,4 @@ spring:
     password: xPwRXvRS7kdcFQMn9hXe8fNt8FUmP28CrvbpLpwP7H7uvJRMM9YLNvUk5T4x4TCc
 logging:
   level:
-    root: ERROR
+    root: WARN

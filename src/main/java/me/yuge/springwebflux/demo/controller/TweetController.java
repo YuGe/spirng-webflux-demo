@@ -1,11 +1,10 @@
 package me.yuge.springwebflux.demo.controller;
 
+import me.yuge.springwebflux.core.exception.NotFoundStatusException;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -19,7 +18,6 @@ import java.time.Instant;
 @RequestMapping("tweets")
 @PreAuthorize("isAuthenticated()")
 public class TweetController {
-
     private final TweetRepository tweetRepository;
 
     @Autowired
@@ -34,43 +32,39 @@ public class TweetController {
         return tweetRepository.findAll().skip(size * page).take(size);
     }
 
+    @GetMapping("{id}")
+    @PreAuthorize("permitAll()")
+    public Mono<Tweet> get(@PathVariable String id) {
+        return tweetRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundStatusException()));
+    }
+
     @PostMapping
-    public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
+    public Mono<Tweet> create(@Valid @RequestBody Tweet tweet) {
         Instant now = Instant.now();
         tweet.setCreatedTime(now);
         tweet.setModifiedTime(now);
         return tweetRepository.save(tweet);
     }
 
-    @GetMapping("{id}")
-    @PreAuthorize("permitAll()")
-    public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
-        return tweetRepository.findById(tweetId)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
     @PutMapping("{id}")
-    public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
-                                                   @Valid @RequestBody Tweet tweet) {
-        return tweetRepository.findById(tweetId)
-                .flatMap(existingTweet -> {
-                    existingTweet.setText(tweet.getText());
-                    return tweetRepository.save(existingTweet);
-                })
-                .map(updatedTweet -> new ResponseEntity<>(updatedTweet, HttpStatus.OK))
-                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public Mono<Tweet> update(@PathVariable String id, @Valid @RequestBody Tweet tweet) {
+        return tweetRepository.findById(id).switchIfEmpty(
+                Mono.error(new NotFoundStatusException())
+        ).flatMap(
+                oldTweet -> {
+                    oldTweet.setText(tweet.getText());
+                    oldTweet.setModifiedTime(Instant.now());
+                    return tweetRepository.save(oldTweet);
+                }
+        );
     }
 
     @DeleteMapping("{id}")
-    public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
-
-        return tweetRepository.findById(tweetId)
-                .flatMap(existingTweet ->
-                        tweetRepository.delete(existingTweet)
-                                .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)))
-                )
-                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public Mono<Void> delete(@PathVariable String id) {
+        return tweetRepository.findById(id).switchIfEmpty(
+                Mono.error(new NotFoundStatusException())
+        ).flatMap(tweetRepository::delete);
     }
 
     // Tweets are Sent to the client as Server Sent Events
@@ -78,5 +72,4 @@ public class TweetController {
     public Flux<Tweet> streamAllTweets() {
         return tweetRepository.findAll();
     }
-
 }

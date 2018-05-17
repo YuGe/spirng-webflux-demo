@@ -1,6 +1,5 @@
 package me.yuge.springwebflux.core;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,11 +74,10 @@ public class RedisCommandsTests {
 
         Mono<Long> lLen = connection.listCommands().lLen(key);
 
-        Mono<Long> popAndLLen = connection.listCommands()
+        Mono<String> popAndLLen = connection.listCommands()
                 .rPush(key, Collections.singletonList(ByteBuffer.wrap("item".getBytes())))
-                .flatMap(l -> brPop)
-                .doOnNext(i -> Assert.assertEquals("item", i))
-                .flatMap(r -> lLen);
-        StepVerifier.create(popAndLLen).expectNext(1L).verifyComplete();
+                .flatMap(r -> lLen)
+                .flatMap(l -> brPop);
+        StepVerifier.create(popAndLLen).expectNext("item").verifyComplete();
     }
 }

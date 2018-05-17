@@ -30,7 +30,7 @@ public class TweetControllerTests {
 
     @Test
     @WithMockUser
-    public void testCreateTweet() {
+    public void testCreate() {
         Tweet tweet = new Tweet("This is a Test Tweet");
 
         webTestClient.post().uri("/tweets")
@@ -43,7 +43,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    public void testGetAllTweets() {
+    public void testGetAll() {
         webTestClient.get().uri("/tweets")
                 .exchange()
                 .expectStatus().isOk()
@@ -51,7 +51,7 @@ public class TweetControllerTests {
     }
 
     @Test
-    public void testGetSingleTweet() {
+    public void testGetSingle() {
         Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block(Duration.ofSeconds(5));
         Objects.requireNonNull(tweet);
 
@@ -66,7 +66,7 @@ public class TweetControllerTests {
 
     @Test
     @WithMockUser
-    public void testUpdateTweet() {
+    public void testUpdate() {
         Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block(Duration.ofSeconds(5));
         Objects.requireNonNull(tweet);
 
@@ -82,7 +82,7 @@ public class TweetControllerTests {
 
     @Test
     @WithMockUser
-    public void testDeleteTweet() {
+    public void testDelete() {
         Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block(Duration.ofSeconds(5));
         Objects.requireNonNull(tweet);
 

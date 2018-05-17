@@ -30,7 +30,7 @@ public class SessionControllerTests {
 
     @Test
     public void testPost() {
-        webTestClient.post().uri("/session")
+        webTestClient.post().uri("sessions")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
                 .exchange()
                 .expectStatus().isOk()
@@ -45,7 +45,7 @@ public class SessionControllerTests {
         session = sessionService.save(session).block(Duration.ofSeconds(5));
         Objects.requireNonNull(session);
 
-        webTestClient.get().uri("/session/" + session.getId())
+        webTestClient.get().uri("sessions/" + session.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + session.getId())
                 .exchange()
                 .expectStatus().isOk()
@@ -60,7 +60,7 @@ public class SessionControllerTests {
         session = sessionService.save(session).block(Duration.ofSeconds(5));
         Objects.requireNonNull(session);
 
-        webTestClient.delete().uri("/session/" + session.getId())
+        webTestClient.delete().uri("sessions/" + session.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + session.getId())
                 .exchange()
                 .expectStatus().isOk();

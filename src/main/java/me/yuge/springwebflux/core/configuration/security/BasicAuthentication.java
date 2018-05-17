@@ -1,6 +1,6 @@
 package me.yuge.springwebflux.core.configuration.security;
 
-import me.yuge.springwebflux.core.ApplicationProperties;
+import me.yuge.springwebflux.core.configuration.SessionProperties;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.service.SessionService;
@@ -23,18 +23,18 @@ import java.util.function.Function;
 public class BasicAuthentication implements Function<String, Mono<Authentication>> {
     static final String BASIC = "Basic ";
 
-    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final SessionService sessionService;
+    private final PasswordEncoder passwordEncoder;
     private final Duration maxIdleTime;
 
     @Autowired
     public BasicAuthentication(UserService userService, SessionService sessionService,
-                               PasswordEncoder passwordEncoder, ApplicationProperties applicationProperties) {
+                               PasswordEncoder passwordEncoder, SessionProperties sessionProperties) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
-        this.maxIdleTime = Duration.ofDays(applicationProperties.getSession().getMaxIdleDays());
+        this.passwordEncoder = passwordEncoder;
+        this.maxIdleTime = Duration.ofDays(sessionProperties.getMaxIdleDays());
     }
 
     @Override

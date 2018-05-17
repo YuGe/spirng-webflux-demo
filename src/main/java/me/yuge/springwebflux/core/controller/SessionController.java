@@ -1,11 +1,11 @@
 package me.yuge.springwebflux.core.controller;
 
 import me.yuge.springwebflux.core.exception.ForbiddenStatusException;
+import me.yuge.springwebflux.core.exception.NotFoundStatusException;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +14,6 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("sessions")
-@PreAuthorize("isAuthenticated()")
 public class SessionController {
     private final SessionService sessionService;
 
@@ -25,40 +24,32 @@ public class SessionController {
 
     @PostMapping
     public Mono<Session> post() {
-        return ReactiveSecurityContextHolder.getContext().map(
-                securityContext -> securityContext.getAuthentication().getDetails()
-        ).cast(Session.class);
+        return sessionService.getAuthenticatedSession();
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("isAuthenticated()")
     public Mono<Session> get(@PathVariable(value = "id") String id) {
-        return ReactiveSecurityContextHolder.getContext().map(
-                securityContext -> securityContext.getAuthentication().getDetails()
-        ).cast(Session.class).flatMap(
-                authSession -> sessionService.get(id).filter(
+        return sessionService.getAuthenticatedSession().flatMap(
+                authSession -> sessionService.get(id).switchIfEmpty(
+                        Mono.error(new NotFoundStatusException())
+                ).filter(
                         targetSession -> Objects.equals(targetSession.getUserId(), authSession.getUserId())
                 ).switchIfEmpty(
-                        Mono.error(new ForbiddenStatusException("Not allowed to access this session"))
+                        Mono.error(new ForbiddenStatusException("Not allowed to get the session"))
                 )
         );
     }
 
     @DeleteMapping("{id}")
     public Mono<Void> delete(@PathVariable(value = "id") String id) {
-        return ReactiveSecurityContextHolder.getContext().map(
-                securityContext -> securityContext.getAuthentication().getDetails()
-        ).cast(Session.class).flatMap(
-                authSession -> sessionService.get(id).filter(
+        return sessionService.getAuthenticatedSession().flatMap(
+                authSession -> sessionService.get(id).switchIfEmpty(
+                        Mono.error(new NotFoundStatusException())
+                ).filter(
                         targetSession -> Objects.equals(targetSession.getUserId(), authSession.getUserId())
                 ).switchIfEmpty(
-                        Mono.error(new ForbiddenStatusException("Not allowed to delete this session"))
+                        Mono.error(new ForbiddenStatusException("Not allowed to delete the session"))
                 ).flatMap(session -> sessionService.delete(session.getId()))
         );
-    }
-
-    @DeleteMapping(params = "user_id")
-    public Mono<Void> deleteByUser(@RequestParam("user_id") String userId) {
-        return sessionService.deleteUserSessionAll(userId);
     }
 }

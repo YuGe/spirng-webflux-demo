@@ -27,7 +27,7 @@ public class RedisConfiguration {
      * {@link String} keys and values.
      */
     @Bean
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(
+    public ReactiveRedisTemplate<String, String> reactiveRedisStringTemplate(
             ReactiveRedisConnectionFactory connectionFactory) {
         return new ReactiveRedisTemplate<>(connectionFactory, RedisSerializationContext.string());
     }

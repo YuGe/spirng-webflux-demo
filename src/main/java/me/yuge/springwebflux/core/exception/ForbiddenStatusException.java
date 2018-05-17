@@ -5,6 +5,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 public class ForbiddenStatusException extends ResponseStatusException {
+    public ForbiddenStatusException() {
+        super(HttpStatus.FORBIDDEN);
+    }
+
     public ForbiddenStatusException(String message) {
         super(HttpStatus.FORBIDDEN, message);
     }

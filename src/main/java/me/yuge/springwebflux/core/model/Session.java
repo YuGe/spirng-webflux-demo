@@ -21,9 +21,9 @@ public class Session {
     private String login;
     @Builder.Default
     private String[] roles = new String[]{};
+    private Duration maxIdleTime;
     @Builder.Default
     private Instant createdTime = Instant.now();
-    private Duration maxIdleTime;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
