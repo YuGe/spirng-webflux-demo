@@ -24,6 +24,6 @@ public class Event {
 
     @Transient
     public User getUser() {
-        return getPayload().getUser();
+        return getPayload() == null ? null : getPayload().getUser();
     }
 }

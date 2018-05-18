@@ -3,7 +3,6 @@ package me.yuge.springwebflux.core.configuration;
 import com.google.common.collect.Lists;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuilder;
@@ -22,8 +21,7 @@ public class WebFluxConfig implements WebFluxConfigurer {
 
     private class HeaderContentTypeResolver implements RequestedContentTypeResolver {
         @Override
-        @NonNull
-        public List<MediaType> resolveMediaTypes(@NonNull ServerWebExchange exchange) {
+        public List<MediaType> resolveMediaTypes(ServerWebExchange exchange) {
             HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
             HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
 
