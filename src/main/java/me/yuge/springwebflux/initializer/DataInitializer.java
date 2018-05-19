@@ -41,7 +41,7 @@ public class DataInitializer {
         this.connection = connectionFactory.getReactiveConnection();
     }
 
-    @EventListener(value = ContextRefreshedEvent.class)
+//    @EventListener(value = ContextRefreshedEvent.class)
     public void init() {
         if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> (env.equalsIgnoreCase("dev")))) {
             initRedis();

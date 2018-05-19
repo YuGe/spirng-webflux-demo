@@ -16,14 +16,6 @@ import java.util.List;
 
 @Configuration
 public class MongoConfiguration {
-    @Bean
-    public MongoCustomConversions customConversions() {
-        final List<Converter<?, ?>> converters = new ArrayList<>();
-        converters.add(new DateToZonedDateTimeConverter());
-        converters.add(new ZonedDateTimeToDateConverter());
-
-        return new MongoCustomConversions(converters);
-    }
 
     @Bean
     public MappingMongoConverter mappingMongoConverter(MongoDbFactory factory, MongoMappingContext context) {
@@ -37,6 +29,14 @@ public class MongoConfiguration {
         mappingConverter.afterPropertiesSet();
 
         return mappingConverter;
+    }
+
+    private MongoCustomConversions customConversions() {
+        final List<Converter<?, ?>> converters = new ArrayList<>();
+        converters.add(new DateToZonedDateTimeConverter());
+        converters.add(new ZonedDateTimeToDateConverter());
+
+        return new MongoCustomConversions(converters);
     }
 
     class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {

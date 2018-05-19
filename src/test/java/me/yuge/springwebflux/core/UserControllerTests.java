@@ -1,6 +1,5 @@
 package me.yuge.springwebflux.core;
 
-import me.yuge.springwebflux.Application;
 import me.yuge.springwebflux.core.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest
 public class UserControllerTests {
     @Autowired
     private WebTestClient webTestClient;

@@ -42,6 +42,7 @@ public class User {
     private Instant createdTime = Instant.now();
     @Builder.Default()
     private Instant modifiedTime = Instant.now();
+    private String testField;
 
     private static final String ROLE_PREFIX = "ROLE_";
 

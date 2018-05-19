@@ -25,13 +25,15 @@ repositories {
 }
 
 dependencies {
-    compile('com.google.guava:guava:25.0-jre')
     compile('org.springframework.boot:spring-boot-starter-log4j2')
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-configuration-processor')
     compile('org.springframework.boot:spring-boot-starter-data-redis-reactive')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
+    compile('org.springframework.boot:spring-boot-starter-mail')
+    compile('org.freemarker:freemarker:2.3.28')
+    compile('com.google.guava:guava:25.0-jre')
     compileOnly('org.projectlombok:lombok')
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.springframework.boot:spring-boot-starter-test')

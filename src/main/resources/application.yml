@@ -4,6 +4,14 @@ spring:
   output:
     ansi:
       enabled: always
+  mail:
+    host:
+    port:
+    username:
+    password:
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 
 application:
   session:
