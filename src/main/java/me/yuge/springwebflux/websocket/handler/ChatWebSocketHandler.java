@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class ChatWebSocketHandler implements WebSocketHandler {
     final private static UnicastProcessor<Event> EVENT_UNICAST_PROCESSOR = UnicastProcessor.create();
     final private static Flux<Event> OUTPUT_EVENTS = EVENT_UNICAST_PROCESSOR.replay(25).autoConnect();

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-
 public class MutualOperatorTests {
     @Test
     public void testTransform() {
@@ -52,7 +51,6 @@ public class MutualOperatorTests {
         Flux<String> hotFlux = hotSource.publish()
                 .autoConnect()
                 .map(String::toUpperCase);
-
 
         hotFlux.subscribe(d -> System.out.println("Subscriber 1 to Hot Source: " + d));
 

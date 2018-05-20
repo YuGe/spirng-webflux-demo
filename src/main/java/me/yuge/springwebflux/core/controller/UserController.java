@@ -7,15 +7,16 @@ import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.repository.UserRepository;
 import me.yuge.springwebflux.core.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-
 @RestController
 @RequestMapping("users")
+@PreAuthorize("isAuthenticated()")
 public class UserController {
     private final UserRepository userRepository;
     private final SessionService sessionService;

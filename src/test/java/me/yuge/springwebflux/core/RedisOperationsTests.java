@@ -15,7 +15,6 @@ import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RedisOperationsTests {

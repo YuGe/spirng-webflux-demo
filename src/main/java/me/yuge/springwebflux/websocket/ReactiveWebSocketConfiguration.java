@@ -13,7 +13,6 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Configuration
 public class ReactiveWebSocketConfiguration {
     private final ObjectMapper objectMapper;

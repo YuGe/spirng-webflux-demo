@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 @Configuration
 public class MongoConfiguration {
-
     @Bean
     public MappingMongoConverter mappingMongoConverter(MongoDbFactory factory, MongoMappingContext context) {
         DbRefResolver dbRefResolver = new DefaultDbRefResolver(factory);

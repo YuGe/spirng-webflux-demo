@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-
 @Component
 public class BearerAuthentication implements Function<String, Mono<Authentication>> {
     static final String BEARER = "Bearer ";

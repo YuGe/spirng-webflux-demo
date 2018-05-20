@@ -10,7 +10,6 @@ import me.yuge.springwebflux.core.model.User;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Data
 @Builder
 @NoArgsConstructor

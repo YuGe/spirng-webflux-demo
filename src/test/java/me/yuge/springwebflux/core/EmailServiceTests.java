@@ -1,17 +1,16 @@
 package me.yuge.springwebflux.core;
 
-import com.google.common.io.Resources;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import me.yuge.springwebflux.core.service.EmailService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -21,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class EmailServiceTests {
@@ -30,12 +28,14 @@ public class EmailServiceTests {
     @Autowired
     Configuration configuration;
 
-//    @Test
+    @Ignore
+    @Test
     public void testSendSimpleMessage() {
         emailService.sendSimpleMessage("", "welcome", "Test welcome");
     }
 
-//    @Test
+    @Ignore
+    @Test
     public void testSendHtmlMessage() throws IOException, TemplateException {
         Map<String, Object> root = new HashMap<>();
         root.put("user", "foo");
@@ -47,7 +47,8 @@ public class EmailServiceTests {
         emailService.sendHtmlMessage("", "welcome", writer.toString());
     }
 
-//    @Test
+    @Ignore
+    @Test
     public void testFreeMarker() throws IOException, TemplateException {
         Map<String, Object> root = new HashMap<>();
         root.put("user", "Foo");

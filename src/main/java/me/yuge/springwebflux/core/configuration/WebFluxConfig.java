@@ -11,7 +11,6 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.List;
 
-
 @Component
 public class WebFluxConfig implements WebFluxConfigurer {
     @Override

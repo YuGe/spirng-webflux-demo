@@ -9,7 +9,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-
 @Component
 public class EmailService {
     private final JavaMailSender emailSender;

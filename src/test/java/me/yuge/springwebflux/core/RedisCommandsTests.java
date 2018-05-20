@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RedisCommandsTests {

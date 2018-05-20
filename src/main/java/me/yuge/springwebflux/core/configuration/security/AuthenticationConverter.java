@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-
 @Component
 public class AuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
     private final BasicAuthentication basicAuthentication;

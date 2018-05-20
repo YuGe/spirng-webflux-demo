@@ -11,9 +11,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-
 @RestController
 @RequestMapping("sessions")
+@PreAuthorize("isAuthenticated()")
 public class SessionController {
     private final SessionService sessionService;
 

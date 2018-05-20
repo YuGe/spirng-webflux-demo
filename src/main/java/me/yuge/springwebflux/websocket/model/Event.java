@@ -9,7 +9,6 @@ import me.yuge.springwebflux.core.model.User;
 import java.beans.Transient;
 import java.time.Instant;
 
-
 @Data
 @Builder
 @NoArgsConstructor

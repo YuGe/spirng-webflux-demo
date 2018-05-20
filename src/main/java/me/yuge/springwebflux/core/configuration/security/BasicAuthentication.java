@@ -18,7 +18,6 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.function.Function;
 
-
 @Component
 public class BasicAuthentication implements Function<String, Mono<Authentication>> {
     static final String BASIC = "Basic ";

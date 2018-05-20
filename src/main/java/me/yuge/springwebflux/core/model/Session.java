@@ -9,7 +9,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 
-
 @Data
 @Builder
 @NoArgsConstructor

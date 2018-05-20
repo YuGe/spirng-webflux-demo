@@ -15,7 +15,6 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Objects;
 
-
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
 @SpringBootTest
