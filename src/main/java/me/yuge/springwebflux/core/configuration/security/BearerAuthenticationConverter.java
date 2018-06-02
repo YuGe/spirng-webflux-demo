@@ -11,24 +11,23 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @Component
-public class BearerAuthentication implements Function<String, Mono<Authentication>> {
+public class BearerAuthenticationConverter implements Function<String, Mono<Authentication>> {
     static final String BEARER = "Bearer ";
-
     private final SessionService sessionService;
 
     @Autowired
-    public BearerAuthentication(SessionService sessionService) {
+    public BearerAuthenticationConverter(SessionService sessionService) {
         this.sessionService = sessionService;
     }
 
     @Override
     public Mono<Authentication> apply(String authorization) {
-        final String token = authorization.substring(7);
+        final String token = authorization.substring(BEARER.length());
 
         return sessionService.get(token).switchIfEmpty(
-                Mono.error(new BadCredentialsException("Invalid Bearer Authentication Token"))
+                Mono.error(new BadCredentialsException("Invalid Bearer Token"))
         ).flatMap(session -> sessionService.expire(session).map(
-                expiredSession -> new AuthenticationToken(
+                expiredSession -> new SessionDetailsAuthenticationToken(
                         expiredSession.getUserId(),
                         token,
                         expiredSession,

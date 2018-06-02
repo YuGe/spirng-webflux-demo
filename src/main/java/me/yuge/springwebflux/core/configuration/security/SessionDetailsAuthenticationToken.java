@@ -1,11 +1,12 @@
 package me.yuge.springwebflux.core.configuration.security;
 
+import me.yuge.springwebflux.core.model.Session;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-class AuthenticationToken extends AbstractAuthenticationToken {
+class SessionDetailsAuthenticationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = -1126325598266222359L;
 
     private final Object principal;
@@ -22,7 +23,7 @@ class AuthenticationToken extends AbstractAuthenticationToken {
      * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal
      *                    represented by this authentication object.
      */
-    AuthenticationToken(Object principal, Object credentials, Object details, Collection<? extends GrantedAuthority> authorities) {
+    SessionDetailsAuthenticationToken(Object principal, Object credentials, Session details, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;

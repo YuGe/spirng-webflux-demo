@@ -10,16 +10,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
-public class BasicAuthentication implements Function<String, Mono<Authentication>> {
+public class BasicAuthenticationConverter implements Function<String, Mono<Authentication>> {
     static final String BASIC = "Basic ";
 
     private final UserService userService;
@@ -28,8 +28,8 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
     private final Duration maxIdleTime;
 
     @Autowired
-    public BasicAuthentication(UserService userService, SessionService sessionService,
-                               PasswordEncoder passwordEncoder, SessionProperties sessionProperties) {
+    public BasicAuthenticationConverter(UserService userService, SessionService sessionService,
+                                        PasswordEncoder passwordEncoder, SessionProperties sessionProperties) {
         this.userService = userService;
         this.sessionService = sessionService;
         this.passwordEncoder = passwordEncoder;
@@ -38,25 +38,27 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
 
     @Override
     public Mono<Authentication> apply(String authorization) {
-        String[] tokens = extractAndDecodeToken(authorization);
-        Assert.isTrue(tokens.length == 2, "Tokens should contain login and password");
+        Optional<String[]> extractCredentials = decodeAndExtractCredentials(authorization);
+        if (!extractCredentials.isPresent()) {
+            return Mono.error(new BadCredentialsException("Basic Credentials Format Error"));
+        }
+        final String[] loginPassword = extractCredentials.get();
 
-        return userService.findByLogin(tokens[0]).filter(
-                user -> passwordEncoder.matches(tokens[1], user.getPassword())
-        ).switchIfEmpty(
-                Mono.error(new BadCredentialsException("Login or Password not correct"))
+        return userService.findByLogin(loginPassword[0]).publishOn(Schedulers.parallel()).filter(
+                user -> passwordEncoder.matches(loginPassword[1], user.getPassword())
+        ).switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Basic Credentials")))
         ).flatMap(user -> {
                     final Session session = Session.builder()
                             .id(Session.nextSessionId(user.getId()))
                             .userId(user.getId())
                             .username(user.getUsername())
                             .roles(user.getRoles())
-                            .login(tokens[0])
+                            .login(loginPassword[0])
                             .maxIdleTime(maxIdleTime)
                             .build();
                     return sessionService.saveUserSession(session).flatMap(
                             savedSession -> sessionService.expire(savedSession).map(
-                                    expiredSession -> new AuthenticationToken(
+                                    expiredSession -> new SessionDetailsAuthenticationToken(
                                             user.getId(),
                                             user.getPassword(),
                                             expiredSession,
@@ -68,17 +70,26 @@ public class BasicAuthentication implements Function<String, Mono<Authentication
         );
     }
 
-    private String[] extractAndDecodeToken(String header) {
+    /**
+     * Decode and extract login, password from authorization header.
+     *
+     * @param header The basic authorization header.
+     * @return String[] with login and password.
+     */
+    private Optional<String[]> decodeAndExtractCredentials(String header) {
+        String credentials = new String(base64Decode(header.substring(BASIC.length())));
+        String[] loginPassword = credentials.split(":");
+        if (loginPassword.length != 2) {
+            return Optional.empty();
+        }
+        return Optional.of(loginPassword);
+    }
+
+    private byte[] base64Decode(String value) {
         try {
-            byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
-            String token = new String(Base64.getDecoder().decode(base64Token));
-            int delimiterIndex = token.indexOf(":");
-            if (delimiterIndex == -1) {
-                throw new BadCredentialsException("Invalid Basic Authentication Token");
-            }
-            return new String[]{token.substring(0, delimiterIndex), token.substring(delimiterIndex + 1)};
-        } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Failed to decode Basic Authentication Token");
+            return Base64.getDecoder().decode(value);
+        } catch (Exception e) {
+            return new byte[0];
         }
     }
 }

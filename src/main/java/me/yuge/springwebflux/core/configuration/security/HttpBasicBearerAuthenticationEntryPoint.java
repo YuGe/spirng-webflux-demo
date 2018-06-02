@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Primary
 @Component
-public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
+public class HttpBasicBearerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
     private static final String DEFAULT_REALM = "Realm";
 
     private String basicHeaderValue = createBasicHeaderValue(DEFAULT_REALM);
