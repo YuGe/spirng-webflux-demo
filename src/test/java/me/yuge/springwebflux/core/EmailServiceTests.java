@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -31,7 +32,9 @@ public class EmailServiceTests {
     @Ignore
     @Test
     public void testSendSimpleMessage() {
-        emailService.sendSimpleMessage("", "welcome", "Test welcome");
+        StepVerifier.create(
+                emailService.sendSimpleMessage("", "welcome", "Test welcome")
+        ).verifyComplete();
     }
 
     @Ignore
@@ -44,7 +47,9 @@ public class EmailServiceTests {
         Writer writer = new StringWriter();
         template.process(root, writer);
 
-        emailService.sendHtmlMessage("", "welcome", writer.toString());
+        StepVerifier.create(
+                emailService.sendHtmlMessage("", "welcome", writer.toString())
+        ).verifyComplete();
     }
 
     @Ignore
