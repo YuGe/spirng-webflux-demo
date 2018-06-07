@@ -1,9 +1,6 @@
 package me.yuge.springwebflux.core.configuration.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
@@ -30,18 +27,8 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
-        ServerHttpRequest request = serverWebExchange.getRequest();
-        String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-        if (authorization == null) {
-            return Mono.empty();
-        }
-        if (authorization.startsWith(BearerAuthenticationConverter.BEARER)) {
-            return bearerAuthenticationConverter.apply(authorization).map(SecurityContextImpl::new);
-        }
-        if (authorization.startsWith(BasicAuthenticationConverter.BASIC)) {
-            return basicAuthenticationConverter.apply(authorization).map(SecurityContextImpl::new);
-        }
-        return Mono.error(new BadCredentialsException("Invalid Authorization Header"));
+        return bearerAuthenticationConverter.apply(serverWebExchange)
+                .switchIfEmpty(basicAuthenticationConverter.apply(serverWebExchange))
+                .map(SecurityContextImpl::new);
     }
 }

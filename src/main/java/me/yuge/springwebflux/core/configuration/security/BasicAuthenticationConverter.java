@@ -6,83 +6,81 @@ import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.service.SessionService;
 import me.yuge.springwebflux.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Component
-public class BasicAuthenticationConverter implements Function<String, Mono<Authentication>> {
-    static final String BASIC = "Basic ";
+public class BasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+    private static final String BASIC = "Basic ";
 
     private final UserService userService;
-    private final SessionService sessionService;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
     private final Duration maxIdleTime;
 
     @Autowired
-    public BasicAuthenticationConverter(UserService userService, SessionService sessionService,
-                                        PasswordEncoder passwordEncoder, SessionProperties sessionProperties) {
+    public BasicAuthenticationConverter(UserService userService, PasswordEncoder passwordEncoder,
+                                        SessionService sessionService, SessionProperties sessionProperties) {
         this.userService = userService;
-        this.sessionService = sessionService;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
         this.maxIdleTime = Duration.ofDays(sessionProperties.getMaxIdleDays());
     }
 
     @Override
-    public Mono<Authentication> apply(String authorization) {
-        Optional<String[]> extractCredentials = decodeAndExtractCredentials(authorization);
-        if (!extractCredentials.isPresent()) {
-            return Mono.error(new BadCredentialsException("Basic Credentials Format Error"));
+    public Mono<Authentication> apply(ServerWebExchange serverWebExchange) {
+        ServerHttpRequest request = serverWebExchange.getRequest();
+        String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+        if (authorization == null || !authorization.startsWith(BASIC)) {
+            return Mono.empty();
         }
-        final String[] loginPassword = extractCredentials.get();
 
-        return userService.findByLogin(loginPassword[0]).publishOn(Schedulers.parallel()).filter(
-                user -> passwordEncoder.matches(loginPassword[1], user.getPassword())
-        ).switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Basic Credentials")))
-        ).flatMap(user -> {
-                    final Session session = Session.builder()
-                            .id(Session.nextSessionId(user.getId()))
-                            .userId(user.getId())
-                            .username(user.getUsername())
-                            .roles(user.getRoles())
-                            .login(loginPassword[0])
-                            .maxIdleTime(maxIdleTime)
-                            .build();
-                    return sessionService.saveUserSession(session).flatMap(
-                            savedSession -> sessionService.expire(savedSession).map(
-                                    expiredSession -> new SessionDetailsAuthenticationToken(
-                                            user.getId(),
-                                            user.getPassword(),
-                                            expiredSession,
-                                            User.getAuthorities(user.getRoles())
-                                    )
-                            )
-                    );
-                }
-        );
-    }
-
-    /**
-     * Decode and extract login, password from authorization header.
-     *
-     * @param header The basic authorization header.
-     * @return String[] with login and password.
-     */
-    private Optional<String[]> decodeAndExtractCredentials(String header) {
-        String credentials = new String(base64Decode(header.substring(BASIC.length())));
-        String[] loginPassword = credentials.split(":");
+        String credentials = authorization.substring(BASIC.length(), authorization.length());
+        String decodedCredentials = new String(base64Decode(credentials));
+        String[] loginPassword = decodedCredentials.split(":");
         if (loginPassword.length != 2) {
-            return Optional.empty();
+            return Mono.error(new BadCredentialsException("Basic Credential Format Error"));
         }
-        return Optional.of(loginPassword);
+
+        String login = loginPassword[0];
+        String password = loginPassword[1];
+        return userService.findByLogin(login)
+                .publishOn(Schedulers.parallel())
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Basic Credential"))))
+                .flatMap(user -> {
+                            final Session session = Session.builder()
+                                    .id(Session.nextSessionId(user.getId()))
+                                    .userId(user.getId())
+                                    .username(user.getUsername())
+                                    .roles(user.getRoles())
+                                    .login(login)
+                                    .maxIdleTime(maxIdleTime)
+                                    .build();
+                            return sessionService.saveUserSession(session)
+                                    .flatMap(savedSession -> sessionService.expire(savedSession)
+                                            .map(expiredSession -> new SessionDetailsAuthenticationToken(
+                                                            session.getId(),
+                                                            password,
+                                                            expiredSession,
+                                                            User.getAuthorities(session.getRoles())
+                                                    )
+                                            )
+                                    );
+                        }
+                );
     }
 
     private byte[] base64Decode(String value) {
