@@ -1,4 +1,4 @@
-package me.yuge.springwebflux.core.repository;
+package me.yuge.springwebflux.core.service;
 
 import me.yuge.springwebflux.core.model.User;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
@@ -10,6 +10,7 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
     Mono<User> findByUsername(String username);
 
-    Mono<User> findByLogin(String username);
+    @SuppressWarnings("SpringDataRepositoryMethodParametersInspection")
+    Mono<User> findByLogin(String login);
 
 }

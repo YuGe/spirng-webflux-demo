@@ -1,6 +1,6 @@
 version: '3'
 services:
-  webapp:
+  app:
     build: ./
     image: spring-webflux-demo:latest
     command: java -jar app.jar --spring.profiles.active=prod

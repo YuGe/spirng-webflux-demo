@@ -1,6 +1,5 @@
 package me.yuge.springwebflux.core.configuration.security;
 
-import me.yuge.springwebflux.core.configuration.SessionProperties;
 import me.yuge.springwebflux.core.model.Session;
 import me.yuge.springwebflux.core.model.User;
 import me.yuge.springwebflux.core.service.SessionService;
@@ -16,7 +15,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.Duration;
 import java.util.Base64;
 import java.util.function.Function;
 
@@ -27,15 +25,13 @@ public class BasicAuthenticationConverter implements Function<ServerWebExchange,
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
-    private final Duration maxIdleTime;
 
     @Autowired
     public BasicAuthenticationConverter(UserService userService, PasswordEncoder passwordEncoder,
-                                        SessionService sessionService, SessionProperties sessionProperties) {
+                                        SessionService sessionService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
-        this.maxIdleTime = Duration.ofDays(sessionProperties.getMaxIdleDays());
     }
 
     @Override
@@ -67,18 +63,13 @@ public class BasicAuthenticationConverter implements Function<ServerWebExchange,
                                     .username(user.getUsername())
                                     .roles(user.getRoles())
                                     .login(login)
-                                    .maxIdleTime(maxIdleTime)
                                     .build();
                             return sessionService.saveUserSession(session)
-                                    .flatMap(savedSession -> sessionService.expire(savedSession)
-                                            .map(expiredSession -> new SessionDetailsAuthenticationToken(
-                                                            session.getId(),
-                                                            password,
-                                                            expiredSession,
-                                                            User.getAuthorities(session.getRoles())
-                                                    )
-                                            )
-                                    );
+                                    .map(savedSession -> new SessionDetailsAuthenticationToken(
+                                            savedSession.getId(),
+                                            user.getPassword(),
+                                            savedSession,
+                                            User.getAuthorities(session.getRoles())));
                         }
                 );
     }

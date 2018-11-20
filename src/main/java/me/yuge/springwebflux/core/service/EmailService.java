@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -20,31 +18,25 @@ public class EmailService {
         this.emailSender = emailSender;
     }
 
-    public Mono<Void> sendSimpleMessage(String to, String subject, String text) {
+    public void sendSimpleMessage(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
 
-        return Mono.fromCallable(() -> {
-            emailSender.send(message);
-            return Mono.empty();
-        }).subscribeOn(Schedulers.elastic()).then();
+        emailSender.send(message);
     }
 
-    public Mono<Void> sendHtmlMessage(String to, String subject, String text) {
+    public void sendHtmlMessage(String to, String subject, String text) {
+        MimeMessage message = emailSender.createMimeMessage();
         try {
-            MimeMessage message = emailSender.createMimeMessage();
             message.setRecipients(Message.RecipientType.TO, to);
             message.setSubject(subject);
             message.setContent(text, "text/html; charset=utf-8");
-
-            return Mono.fromCallable(() -> {
-                emailSender.send(message);
-                return Mono.empty();
-            }).subscribeOn(Schedulers.elastic()).then();
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+
+        emailSender.send(message);
     }
 }

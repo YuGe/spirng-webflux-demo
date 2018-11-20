@@ -72,6 +72,7 @@ public class WebSocketHandlerTests {
                 .send(Flux.fromIterable(input).map(this::toJSON).map(session::textMessage))
                 .thenMany(session.receive().take(count))
                 .map(WebSocketMessage::getPayloadAsText)
+                .log()
                 .map(this::toEvent)
                 .subscribeWith(output)
                 .then()

@@ -28,16 +28,6 @@ public class UserControllerTests {
 
     @Test
     @WithMockUser
-    public void testGetByUsername() {
-        webTestClient.get().uri("/users?username=admin")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.username").isEqualTo("admin");
-    }
-
-    @Test
-    @WithMockUser
     public void testGetByLogin() {
         webTestClient.get().uri("/users?login=admin@bar.com")
                 .exchange()

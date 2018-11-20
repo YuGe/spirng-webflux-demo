@@ -2,7 +2,7 @@ package me.yuge.springwebflux.initializer;
 
 import lombok.extern.slf4j.Slf4j;
 import me.yuge.springwebflux.core.model.User;
-import me.yuge.springwebflux.core.repository.UserRepository;
+import me.yuge.springwebflux.core.service.UserRepository;
 import me.yuge.springwebflux.demo.model.Tweet;
 import me.yuge.springwebflux.demo.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class DataInitializer {
         log.info("start tweetRepository initialization...");
         this.tweetRepository.deleteAll().thenMany(
                 Flux.just("Tweet one", "Tweet 2", "推特三").flatMap(
-                        text -> this.tweetRepository.save(new Tweet(text))
+                        text -> this.tweetRepository.save(Tweet.builder().text(text).build())
                 )
         ).blockLast(Duration.ofSeconds(5));
         log.info("done tweetRepository initialization...");

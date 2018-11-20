@@ -13,7 +13,7 @@ class SessionDetailsAuthenticationToken extends AbstractAuthenticationToken {
     private Object credentials;
 
     /**
-     * Creates a token with the supplied array of authorities.
+     * Creates a code with the supplied array of authorities.
      * {@link #isAuthenticated()} will return <code>false</code>.
      *
      * @param principal   The identity of the principal being authenticated.
@@ -45,7 +45,7 @@ class SessionDetailsAuthenticationToken extends AbstractAuthenticationToken {
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         if (isAuthenticated) {
             throw new IllegalArgumentException(
-                    "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead"
+                    "Cannot set this code to trusted - use constructor which takes a GrantedAuthority list instead"
             );
         }
         super.setAuthenticated(false);

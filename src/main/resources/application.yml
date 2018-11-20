@@ -5,10 +5,10 @@ spring:
     ansi:
       enabled: always
   mail:
-    host:
-    port:
-    username:
-    password:
+    host: smtp.gmail.com
+    port: 587
+    username: 5L2Z5q2M@gmail.com
+    password: WWbyza645KiVdsdK
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -25,7 +25,8 @@ spring:
       database: dev
 logging:
   level:
-    org.springframework.data.mongodb: DEBUG
+    root: WARN
+#    org.springframework.data.mongodb: DEBUG
 
 ---
 spring:
@@ -39,4 +40,4 @@ spring:
     password: xPwRXvRS7kdcFQMn9hXe8fNt8FUmP28CrvbpLpwP7H7uvJRMM9YLNvUk5T4x4TCc
 logging:
   level:
-    root: WARN
+    root: ERROR
