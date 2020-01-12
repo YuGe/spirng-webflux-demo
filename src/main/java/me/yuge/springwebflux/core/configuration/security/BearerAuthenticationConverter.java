@@ -32,7 +32,7 @@ public class BearerAuthenticationConverter implements Function<ServerWebExchange
             return Mono.empty();
         }
 
-        final String token = authorization.substring(BEARER.length(), authorization.length());
+        final String token = authorization.substring(BEARER.length());
 
         return sessionService.get(token)
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid Bearer Token")))

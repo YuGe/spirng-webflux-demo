@@ -71,7 +71,6 @@ public class SessionController {
     public Mono<Void> verifyVerification(@Valid @RequestBody Verification verification) {
         return verificationService.verify(verification)
                 .filter(Boolean::booleanValue)
-//                .switchIfEmpty()
                 .then();
     }
 }
